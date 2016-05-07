@@ -13,6 +13,9 @@ created.
 
 ### Includes
 .aliases -- Various helpful short commands
+.bash_profile --
+.bashrc --
+.bash_prompt
 
 ### License
 The MIT License (MIT)

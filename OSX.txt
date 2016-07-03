@@ -1,0 +1,3 @@
+Install Homebrew
+Install git
+install node, python, ruby

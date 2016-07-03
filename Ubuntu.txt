@@ -1,0 +1,11 @@
+Unlock everything from launcher
+Update ubuntu and linux
+Install chrome
+set menu for window title bar
+turn off file and application usage
+turn off online search results in search
+turn off error reports to canonical
+turn off require password when return from blank screen
+install git
+install atom
+install python, node, ruby

@@ -1,3 +1,9 @@
 Install Homebrew
 Install git
 install node, python, ruby
+Move dock to left side and change setup
+update other general settings
+enable firewall
+change background?
+download brave
+update bash profile

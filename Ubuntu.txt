@@ -9,3 +9,4 @@ turn off require password when return from blank screen
 install git
 install atom
 install python, node, ruby
+change background?

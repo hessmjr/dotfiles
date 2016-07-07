@@ -8,5 +8,7 @@ turn off error reports to canonical
 turn off require password when return from blank screen
 install git
 install atom
-install python, node, ruby
+- install python, node, ruby, best not to assume this
 change background?
+update bash
+add and update vim

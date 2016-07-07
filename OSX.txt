@@ -1,9 +1,12 @@
 Install Homebrew
 Install git
-install node, python, ruby
+ - install node, python, ruby (possibly skip this step, dont want to assume)
+install iterm2
+install atom
 Move dock to left side and change setup
 update other general settings
 enable firewall
 change background?
 download brave
 update bash profile
+update vim when ready

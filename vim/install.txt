@@ -1,0 +1,1 @@
+everything necessary to get vim setup with correct 'plugins' (no outside tools though)

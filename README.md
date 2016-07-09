@@ -10,17 +10,13 @@ created.
 - What is done
 
 ### Includes
-- .aliases -- Various helpful short commands
-- .bash_profile --
-- .bashrc --
-- .bash_prompt
+TODO - update when complete
 
 ### Ideas
 OSX
 - System preferences
 - Look and feel
 - Download apps and setup apps?
-- Vagrant, virtual box
 
 ### License
 The MIT License (MIT)

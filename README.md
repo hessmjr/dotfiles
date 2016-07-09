@@ -14,9 +14,6 @@ TODO - update when complete
 
 ### Ideas
 OSX
-- Install Homebrew
-- Install git
-    - install node, python, ruby (possibly skip this step, dont want to assume)
 - install iterm2
 - install atom
 - enable firewall

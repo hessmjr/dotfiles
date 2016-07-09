@@ -15,15 +15,15 @@ fi
 # Exit if, for some reason, Homebrew is not installed
 [[ ! "$(type -P brew)" ]] && e_error "Homebrew failed to install." && return 1
 
-# Check homebrew and update
-e_header "Updating Homebrew"
-brew doctor
-brew update
-
 ###############################################################################
 # Homebrew Recipes                                                            #
 ###############################################################################
 
+# Check Homebrew and update
+brew doctor
+brew update
+
+# Execute Homebrew taps and recipes
 tap 'caskroom/cask'
 tap 'caskroom/versions'
 tap 'homebrew/bundle'
@@ -47,5 +47,6 @@ brew 'python'
 brew 'python3'
 brew 'redis'
 
+# Do a final Homebrew check and cleanup
 brew doctor
 brew cleanup

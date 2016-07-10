@@ -1,6 +1,5 @@
 # Dot Files / Folders
-.*
-.*/
+*.DS_Store
 !.git*
 !.hg*
 !.htaccess

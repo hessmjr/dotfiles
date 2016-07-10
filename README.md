@@ -19,7 +19,6 @@ OSX
 - enable firewall
 - change background?
 - download brave
-- update bash profile
 - update vim when ready
 
 Ubuntu

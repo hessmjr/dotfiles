@@ -36,7 +36,7 @@ Ubuntu
     - install python, node, ruby, best not to assume this
 - change background?
 - update bash
-- add and update vim
+- install vim
 
 ### License
 The MIT License (MIT)

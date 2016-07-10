@@ -28,7 +28,7 @@ function git_branch {
 		echo "[${branch}]";
 	else
 		echo "";
-	fi
+	fi;
 }
 
 # Git status check function
@@ -39,48 +39,48 @@ function git_status {
     # # Check if the current directory is in a Git repository.
     # if [ $(git rev-parse --is-inside-work-tree &>/dev/null; echo "${?}") == '0' ]; then
     #     return;
-    # fi
+    # fi;
     #
     # # check if the current directory is in .git before running git checks
     # if [ "$(git rev-parse --is-inside-git-dir 2> /dev/null)" == 'false' ]; then
     #     return;
-    # fi
+    # fi;
 
     # Check if any unstaged changes
     unstaged=`echo -n "${git_command}" 2> /dev/null | grep "modified:" &> /dev/null; echo "$?"`;
     if [ "${unstaged}" == "0" ]; then
 		symbols+='!';
-	fi
+	fi;
 
     # Check if any files are untracked
     untracked=`echo -n "${git_command}" 2> /dev/null | grep "Untracked files" &> /dev/null; echo "$?"`;
     if [ "${untracked}" == "0" ]; then
 		symbols+='?';
-	fi
+	fi;
 
     # Check if local repo is ahead
     ahead=`echo -n "${git_command}" 2> /dev/null | grep "Your branch is ahead of" &> /dev/null; echo "$?"`;
     if [ "${ahead}" == "0" ]; then
 		symbols+='*';
-	fi
+	fi;
 
     # Check if any uncommitted files
     uncommitted=`echo -n "${git_command}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?"`;
     if [ "${uncommitted}" == "0" ]; then
 		symbols+='+';
-	fi
+	fi;
 
     # Check if any files renamed
     renamed=`echo -n "${git_command}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?"`;
     if [ "${renamed}" == "0" ]; then
 		symbols+='>';
-	fi
+	fi;
 
     # Check if any deleted files
     deleted=`echo -n "${git_command}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`;
     if [ "${deleted}" == "0" ]; then
 		symbols+='x';
-	fi
+	fi;
 
     # Check if any stashed files
     if $(git rev-parse --verify refs/stash &>/dev/null); then
@@ -89,10 +89,10 @@ function git_status {
 
     # Return any symbols found
     if [ ! "${symbols}" == "" ]; then
-        echo "(${symbols})";
+        echo "[${symbols}]";
     else
         echo "";
-    fi
+    fi;
 }
 
 # Highlight the user name when logged in as root.
@@ -109,15 +109,17 @@ else
 	host_style="${green}";
 fi;
 
-# TODO set color based on status of last command
-user_input="${black}";
+# Find exit status of last command to determine user input color TODO doesnt work
+if [ $? -ne 0 ]; then
+    user_input="${red}";
+else
+    user_input="${blue}";
+fi;
 
 ###############################################################################
 # Prompt 1 setup                                                              #
 ###############################################################################
 
-# PS1 prompt (main user input)
-# PS1="\[\e[0;32m\]\u\[\e[0m\]\[\e[0;32m\]:\[\e[0m\] \[\e[0;32m\]\W\[\e[0m\]\[\e[0;33m\]\`parse_git_branch\`\[\e[0m\] > "
 # TODO do a check for git, xcode, and anything else before adding git status
 
 # Start user input with new line
@@ -160,7 +162,7 @@ PS1+="\[${yellow}\]\`git_status\`\[${reset}\]";
 PS1+="\n";
 
 # Set current full directory
-PS1+="\[${reset}\]\`pwd\`\[${reset}\]";
+PS1+="\[${green}\]< \[${reset}\]\`pwd\`\[${green}\] >\[${reset}\]";
 
 # New line to split for user input
 PS1+="\n";

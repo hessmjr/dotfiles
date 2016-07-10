@@ -1,24 +1,40 @@
 # Dotfiles
+---
 Dotfiles for use when setting up development environments in Mac OS X or Ubuntu.
 Used primarily by me in newly created virtual machines and/or remote servers
 created.
 
-### Install
+## Installation
+---
+Review file prior to usage.  May have unintended consequences otherwise.
+
+### Using cURL
+
+```sh
+cd; curl -#L https://github.com/hessmjr/dotfiles/tarball/master |
+tar -xzv --strip-components 1 --exclude={README.md,init.sh,.gitignore,LICENSE}
+```
+
+### Use Wget
 - How to get
 
-### Usage
+## Usage
+---
 - What is done
 
-### Includes
+
+## Includes
+---
 TODO - update when complete
 
-### Ideas
+## Ideas
+---
 OSX
 - install iterm2
 - install atom
+- install chrome
 - enable firewall
 - change background?
-- download brave
 - update vim when ready
 
 Ubuntu
@@ -37,7 +53,8 @@ Ubuntu
 - update bash
 - install vim
 
-### License
+## License
+---
 The MIT License (MIT)
 
 Copyright (c) 2016 Mark Hess

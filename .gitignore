@@ -1,0 +1,27 @@
+# Dot Files / Folders
+.*
+.*/
+!.git*
+!.hg*
+!.htaccess
+
+# Crap Files
+Thumbs.db
+
+# Variable Files
+*.log
+*_log.*
+
+# Archives
+*.tar
+*.gz
+*.tgz
+*.zip
+*.lzh
+*.lha
+*.cab
+
+# Backup Files
+*.bak
+*.org
+*.sql

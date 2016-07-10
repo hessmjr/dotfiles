@@ -1,5 +1,4 @@
-# OSX-only stuff. Abort if not OSX.
-is_osx || return 1
+# Initial setup file for configuring OSX settings
 
 # Ask for the administrator password upfront
 sudo -v

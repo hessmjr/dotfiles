@@ -135,16 +135,16 @@ PS1+=" ";
 PS1+="\[${user_style}\]\u\[${reset}\]";
 
 # Add connector
-PS1+="\[${white}\] @ \[${reset}\]";
+PS1+="\[${reset}\] @ \[${reset}\]";
 
 # Set username
 PS1+="\[${host_style}\]\H\[${reset}\]";
 
 # Add connector
-PS1+="\[${white}\]: \[${reset}\]";
+PS1+="\[${reset}\]: \[${reset}\]";
 
 # Set working directory
-PS1+="\[${white}\]\W\[${reset}\]";
+PS1+="\[${reset}\]\W\[${reset}\]";
 
 # Add connector
 PS1+=" ";

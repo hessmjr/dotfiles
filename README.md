@@ -1,11 +1,9 @@
 # Dotfiles
-Dotfiles for use when setting up development environments in Mac OS X or Ubuntu.
-Used primarily by me in newly created virtual machines and/or remote servers
-created.
+Dotfiles for use when setting up development environments in Mac OSX or Ubuntu.  Used primarily by me when I create a new virtual machine or connect to a new remote server.
 
 
 ## Installation
-Review file prior to usage.  May have unintended consequences otherwise.
+Review files prior to usage.  May have unintended consequences otherwise.
 
 ### Using cURL
 
@@ -17,7 +15,7 @@ tar -xzv --strip-components 1 --exclude={README.md,init.sh,.gitignore,LICENSE}
 ### Using Wget
 wget on linux
 
-### Using Git
+### Using git
 using git
 
 
@@ -38,7 +36,6 @@ OSX
 - install chrome
 - enable firewall
 - change background?
-- update vim when ready
 
 Ubuntu
 - Unlock everything from launcher

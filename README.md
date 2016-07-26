@@ -1,6 +1,7 @@
 # Dotfiles
 Dotfiles for use when setting up development environments in Mac OSX or Ubuntu.  Used primarily by me when I create a new virtual machine or connect to a new remote server.
 
+**Still work in progress**
 
 ## Installation
 Review files prior to usage.  May have unintended consequences otherwise.

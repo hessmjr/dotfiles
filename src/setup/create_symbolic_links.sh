@@ -46,12 +46,11 @@ create_symlinks() {
 
                 # create backup directory if doesn't exist
                 if [ ! -e "$backupFile" ]; then
-                    mkd "$targetFile/.backups"
+                    mkd "$backupFile"
                 fi
 
-                # move exiting file and remove it
+                # move existing file
                 mv "$targetFile" "$backupFiles"
-                rm -rf "$targetFile"
 
                 execute \
                     "ln -fs $sourceFile $targetFile" \

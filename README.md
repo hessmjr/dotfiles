@@ -19,7 +19,7 @@ tar -xz --strip-components 1 --exclude={README.md,.gitignore,LICENSE} && . boots
 Using wget on Ubuntu
 
 ```sh
-cd; wget --no-check-certificate https://github.com/hessmjr/dotfiles/tarball/master |
+cd; wget -O - https://github.com/hessmjr/dotfiles/tarball/master |
 tar -xz --strip-components 1 --exclude={README.md,.gitignore,LICENSE} && . bootstrap.sh
 ```
 

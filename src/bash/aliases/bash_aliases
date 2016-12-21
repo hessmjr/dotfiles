@@ -51,4 +51,4 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
 # Load OS specific aliases.
-. "/aliases/$OS/bash_aliases"
+. "aliases/$OS/bash_aliases"

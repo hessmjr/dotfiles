@@ -76,6 +76,7 @@ main() {
     # finish the setup and return home directory
     print_in_purple "\n • Process complete. \n\n"
     cd "$HOME"
+    reset
 }
 
 

@@ -1,7 +1,6 @@
 #!/bin/bash
 
 
-# enables color support for the prompt based on terminal type
 enable_color_support() {
 
     if [[ $COLORTERM == gnome-* && $TERM == xterm ]] \
@@ -16,8 +15,7 @@ enable_color_support() {
 }
 
 
-# gets the current branch name
-git_branch() {
+prompt_git_branch() {
 
     local branch=""
 
@@ -34,9 +32,6 @@ git_branch() {
     || git rev-parse --short HEAD 2> /dev/null \
     || printf " (unknown)" )" | tr -d "\n" )"
 
-    # [ -n "$branch" ] \
-    #     && branch=" [$branch]"
-
     # Check if anything exists in the branch else return empty string
     if [ ! "$branch" == "" ]; then
         echo "[$branch]"
@@ -46,12 +41,8 @@ git_branch() {
 }
 
 
-# gets the details and status of a git repository if exists
-git_status() {
-    # [!] Don't break this function into smaller, more specialized ones
-    # as you will only pollute the global space even more. This function
-    # cannot be unset because it's called every time the prompt string
-    # is shown.
+prompt_git_status() {
+    local git_command=`git status 2>&1 | tee`
 
     #local branch_name=""
     local symbols=""
@@ -113,21 +104,29 @@ git_status() {
     else
         echo ""
     fi
+}
 
-    # # Check for stashed files.
-    # if git rev-parse --verify refs/stash &>/dev/null; then
-    #     symbols+="$";
-    # fi
-    #
-    # [ -n "$symbols" ] \
-    #     && symbols=" [$symbols]"
-    #
-    # printf "%s" "$1$branch_name $symbols"
+
+user_status() {
+
+}
+
+
+user_style() {
+    local style = ""
+
+
+
+    echo "${style}"
+}
+
+host_style() {
+
 }
 
 
 # builds the various prompts for the terminal
-set_prompts() {
+build_prompt() {
 
     local bold=$(tput bold 2> /dev/null)
     local reset=$(tput sgr0 2> /dev/null)
@@ -143,22 +142,22 @@ set_prompts() {
 
     # set colors to solarized if available
     if [ "$(tput colors 2> /dev/null || printf "0")" -ge 256 ]; then
-
         # Solarized colors.
         # https://github.com/altercation/solarized/tree/master/iterm2-colors-solarized#the-values
-        cyan=$(tput setaf 37)
+        red=$(tput setaf 124)
         green=$(tput setaf 64)
-        orange=$(tput setaf 166)
-        white=$(tput setaf 15)
         yellow=$(tput setaf 136)
-
+        blue=$(tput setaf 33)
+        purple=$(tput setaf 61)
+        cyan=$(tput setaf 37)
+        white=$(tput setaf 15)
     fi
 
     # Highlight the user name when logged in as root.
     if [[ "${USER}" == "root" ]]; then
-    	user_style="${red}"
+        host_style="${red}"
     else
-    	user_style="${green}"
+        host_style="${green}"
     fi
 
     # Highlight the hostname when connected via SSH.
@@ -181,8 +180,8 @@ set_prompts() {
     # ------------------------------------------------------------------
     # | PS1 - Default interactive prompt                               |
     # ------------------------------------------------------------------
-    # Terminal title (set to the current working directory)
-    PS1="\[\033]0;\W\007\]"
+    # Terminal title (set to the current host)
+    PS1="\[\033]0;\H\007\]"
     # start user input with new line
     PS1+="\n$reset"
     # Add timestamp
@@ -193,7 +192,7 @@ set_prompts() {
     PS1+="$user_style\u$reset"
     # Add connector
     PS1+="$reset @ $reset"
-    # Set username
+    # Set hostname
     PS1+="$host_style\H$reset"
     # Add connector
     PS1+="$reset: $reset"
@@ -202,11 +201,11 @@ set_prompts() {
     # Add connector
     PS1+=" "
     # Git repository branch details
-    PS1+="$purple\`git_branch\`$reset"
+    PS1+="$purple\`prompt_git_branch\`$reset"
     # Add connector
     PS1+=" "
     # Git repository status details
-    PS1+="$yellow\`git_status\`$reset"
+    PS1+="$yellow\`prompt_git_status\`$reset"
     # New line to split current full directory
     PS1+="\n"
     # Set current full directory
@@ -235,7 +234,8 @@ set_prompts() {
 
 main() {
     enable_color_support
-    set_prompts
+    #set_prompts
+    PROMPT_COMMAND=build_prompt
 }
 
 

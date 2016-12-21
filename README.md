@@ -12,7 +12,8 @@ Using cURL on MacOS
 
 ```sh
 cd; curl -#L https://github.com/hessmjr/dotfiles/tarball/master |
-tar -xz --strip-components 1 --exclude={README.md,.gitignore,LICENSE} && source bootstrap.sh
+tar -xz --strip-components 1 --exclude={README.md,.gitignore,LICENSE}
+&& . bootstrap.sh
 ```
 
 ### Using Wget

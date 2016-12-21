@@ -67,7 +67,6 @@ main() {
     # get admin approval right away
     ask_for_sudo
 
-    ./create_directories.sh
     ./create_symbolic_links.sh "$@"
     ./create_local_config_files.sh
 

@@ -66,8 +66,11 @@ create_symlinks() {
 main() {
     print_in_purple "\n • Create symbolic links\n\n"
     create_symlinks "$@"
-    . "bash/bash_profile"
 
+    # source the bash profile for the prompt to change now
+    if [ ! -e "$HOME/.bash_profile" ]; then
+        . "$HOME/.bash_profile"
+    fi
 }
 
 

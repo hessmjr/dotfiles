@@ -6,6 +6,8 @@ Dotfiles for use when setting up environments in MacOS or Ubuntu.
 ## Installation
 Review files prior to usage.  May have unintended consequences otherwise. **You have been warned!**
 
+Will reside wherever following command executed, suggestion in projects/dotfiles
+
 ### Using cURL
 Using cURL on MacOS
 
@@ -25,6 +27,8 @@ Using wget on Ubuntu
 
 min macOS -> 10.10
 min ubuntu -> 14.04
+any existing files will be prompted to move to ~/.backups folder
+
 
 ## Includes
 TODO - update when complete

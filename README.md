@@ -5,30 +5,22 @@ Dotfiles for use when setting up environments in MacOS or Ubuntu.
 ## Installation
 Review files prior to usage.  May have unintended consequences otherwise. **You have been warned!**
 
-Will reside wherever following command executed, suggestion in projects/dotfiles
+When installing using the following commands it will dump the `src` file into whatever directory you're currently in.  Suggestion to place files in `~/projects/dotfiles` however it is not necessary.  Any existing files that overlap will be prompted to move to `~/.backups`
 
 ### Using cURL
 Using cURL on MacOS
 
 ```sh
 cd; curl -#L https://github.com/hessmjr/dotfiles/tarball/master |
-tar -xz --strip-components 1 --exclude={README.md,.gitignore,LICENSE}
-&& . bootstrap.sh
+tar -xz --strip-components 1 --exclude={README.md,.gitignore,LICENSE} && . bootstrap.sh
 ```
 
 ### Using Wget
 Using wget on Ubuntu
 
-
-## Usage
-- How to use
-- execute initialization script
-- execute only what want
-
-min macOS -> 10.10
-min ubuntu -> 14.04
-any existing files will be prompted to move to ~/.backups folder
-
+```sh
+cd; wget
+```
 
 ## License
 The MIT License (MIT)

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # Set LSCOLORS (FreeBSD / macOS).
 #
 #  * `ls` displays colors if the `-G` option is passed or if
@@ -27,7 +25,6 @@ LSCOLORS+="bd" # Directory writable to others, without sticky bit
 
 export LSCOLORS
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Enable color support.
 # alias ls="ls -G"

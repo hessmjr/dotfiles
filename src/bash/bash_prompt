@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # enables color support for the prompt based on terminal type
 enable_color_support() {
 
@@ -13,6 +14,7 @@ enable_color_support() {
     # Load OS specific color support.
     . "colors/$OS/bash_colors"
 }
+
 
 # gets the current branch name
 git_branch() {
@@ -42,6 +44,7 @@ git_branch() {
         echo ""
     fi
 }
+
 
 # gets the details and status of a git repository if exists
 git_status() {
@@ -121,6 +124,7 @@ git_status() {
     #
     # printf "%s" "$1$branch_name $symbols"
 }
+
 
 # builds the various prompts for the terminal
 set_prompts() {
@@ -228,10 +232,12 @@ set_prompts() {
     export PS4
 }
 
+
 main() {
     enable_color_support
     set_prompts
 }
+
 
 # Execute and cleanup
 main

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Set LS_COLORS (GNU).
 #
@@ -23,23 +22,21 @@ LS_COLORS+="or=31;01"   # Symbolic link pointing to a non-existent file
 
 export LS_COLORS
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# Enable color support.
-
-if [ -x /usr/bin/dircolors ]; then
-
-    if test -r ~/.dircolorS; then
-        eval "$(dircolors -b ~/.dircolors)"
-    else
-        eval "$(dircolors -b)"
-    fi
-
-    alias dir="dir --color=auto"
-    alias egrep="egrep --color=auto"
-    alias fgrep="fgrep --color=auto"
-    alias grep="grep --color=auto"
-    alias ls="ls --color=auto"
-    alias vdir="vdir --color=auto"
-
-fi
+# # Enable color support.
+# if [ -x /usr/bin/dircolors ]; then
+#
+#     if test -r ~/.dircolorS; then
+#         eval "$(dircolors -b ~/.dircolors)"
+#     else
+#         eval "$(dircolors -b)"
+#     fi
+#
+#     alias dir="dir --color=auto"
+#     alias egrep="egrep --color=auto"
+#     alias fgrep="fgrep --color=auto"
+#     alias grep="grep --color=auto"
+#     alias ls="ls --color=auto"
+#     alias vdir="vdir --color=auto"
+#
+# fi

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 source_bash_files() {
 
     declare -r CURRENT_DIRECTORY="$(pwd)"
@@ -9,6 +10,8 @@ source_bash_files() {
         "bash_exports"
         "bash_options"
         "bash_prompt"
+        "hushlogin"
+        "curlrc"
         "bash.local"  # For local settings that should
                       # not be under version control.
     )

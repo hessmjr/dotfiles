@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+# enables color support for the prompt based on terminal type
 enable_color_support() {
 
     if [[ $COLORTERM == gnome-* && $TERM == xterm ]] \
@@ -11,110 +10,138 @@ enable_color_support() {
         export TERM="xterm-256color"
     fi
 
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
     # Load OS specific color support.
-
     . "colors/$OS/bash_colors"
-
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# gets the current branch name
+git_branch() {
 
-# [!] Don't break this function into smaller, more specialized ones
-# as you will only pollute the global space even more. This function
-# cannot be unset because it's called every time the prompt string
-# is shown.
-
-get_git_repository_details() {
-
-    local branchName=""
-    local tmp=""
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    local branch=""
 
     # Check if the current directory is in a Git repository.
-
     ! git rev-parse &>/dev/null \
         && return
 
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
     # Check if in `.git/` directory (some of the following
     # checks don't make sense/won't work in the `.git` directory).
-
     [ "$(git rev-parse --is-inside-git-dir)" == "true" ] \
         && return
 
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    branch="$( printf "%s" "$( git rev-parse --abbrev-ref HEAD 2> /dev/null \
+    || git rev-parse --short HEAD 2> /dev/null \
+    || printf " (unknown)" )" | tr -d "\n" )"
 
-    # Check for uncommitted changes in the index.
+    # [ -n "$branch" ] \
+    #     && branch=" [$branch]"
 
-    if ! git diff --quiet --ignore-submodules --cached; then
-        tmp="$tmp+";
+    # Check if anything exists in the branch else return empty string
+    if [ ! "$branch" == "" ]; then
+        echo "[$branch]"
+    else
+        echo ""
     fi
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    # Check for unstaged changes.
-
-    if ! git diff-files --quiet --ignore-submodules --; then
-        tmp="$tmp!";
-    fi
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    # Check for untracked files.
-
-    if [ -n "$(git ls-files --others --exclude-standard)" ]; then
-        tmp="$tmp?";
-    fi
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    # Check for stashed files.
-
-    if git rev-parse --verify refs/stash &>/dev/null; then
-        tmp="$tmp$";
-    fi
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    [ -n "$tmp" ] \
-        && tmp=" [$tmp]"
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    branchName="$( printf "%s" "$( git rev-parse --abbrev-ref HEAD 2> /dev/null \
-        || git rev-parse --short HEAD 2> /dev/null \
-        || printf " (unknown)" )" | tr -d "\n" )"
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    printf "%s" "$1$branchName$tmp"
-
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# gets the details and status of a git repository if exists
+git_status() {
+    # [!] Don't break this function into smaller, more specialized ones
+    # as you will only pollute the global space even more. This function
+    # cannot be unset because it's called every time the prompt string
+    # is shown.
 
+    #local branch_name=""
+    local symbols=""
+
+    # Check if the current directory is in a Git repository.
+    ! git rev-parse &>/dev/null \
+        && return
+
+    # Check if in `.git/` directory (some of the following
+    # checks don't make sense/won't work in the `.git` directory).
+    [ "$(git rev-parse --is-inside-git-dir)" == "true" ] \
+        && return
+
+    # Check if any unstaged changes
+    local unstaged=""
+    unstaged=`echo -n "${git_command}" 2> /dev/null | grep "modified:" &> /dev/null; echo "$?"`
+    if [ "${unstaged}" == "0" ]; then
+        symbols+='!'
+    fi
+
+    # Check if any files are untracked
+    local untracked=""
+    untracked=`echo -n "${git_command}" 2> /dev/null | grep "Untracked files" &> /dev/null; echo "$?"`
+    if [ "${untracked}" == "0" ]; then
+        symbols+='?'
+    fi
+
+    # Check if local repo is ahead
+    local ahead=""
+    ahead=`echo -n "${git_command}" 2> /dev/null | grep "Your branch is ahead of" &> /dev/null; echo "$?"`
+    if [ "${ahead}" == "0" ]; then
+        symbols+='*'
+    fi
+
+    # Check if any uncommitted files
+    local uncommitted=""
+    uncommitted=`echo -n "${git_command}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?"`
+    if [ "${uncommitted}" == "0" ]; then
+        symbols+='+'
+    fi
+
+    # Check if any files renamed
+    local renamed=""
+    renamed=`echo -n "${git_command}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?"`
+    if [ "${renamed}" == "0" ]; then
+        symbols+='>'
+    fi
+
+    # Check if any deleted files
+    local deleted=""
+    deleted=`echo -n "${git_command}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`
+    if [ "${deleted}" == "0" ]; then
+        symbols+='x'
+    fi
+
+    # Return any symbols found
+    if [ ! "${symbols}" == "" ]; then
+        echo "[${symbols}]"
+    else
+        echo ""
+    fi
+
+    # # Check for stashed files.
+    # if git rev-parse --verify refs/stash &>/dev/null; then
+    #     symbols+="$";
+    # fi
+    #
+    # [ -n "$symbols" ] \
+    #     && symbols=" [$symbols]"
+    #
+    # printf "%s" "$1$branch_name $symbols"
+}
+
+# builds the various prompts for the terminal
 set_prompts() {
 
     local bold=$(tput bold 2> /dev/null)
     local reset=$(tput sgr0 2> /dev/null)
 
-    local cyan=""
-    local green=""
-    local orange=""
-    local white=""
-    local yellow=""
+    local black="\[\e[1;30m\]"
+    local red="\[\e[1;31m\]"
+    local green="\[\e[1;32m\]"
+    local yellow="\[\e[1;33m\]"
+    local blue="\[\e[1;34m\]"
+    local purple="\[\e[1;35m\]"
+    local cyan="\[\e[1;36m\]"
+    local white="\[\e[1;37m\]"
 
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+    # set colors to solarized if available
     if [ "$(tput colors 2> /dev/null || printf "0")" -ge 256 ]; then
 
         # Solarized colors.
         # https://github.com/altercation/solarized/tree/master/iterm2-colors-solarized#the-values
-
         cyan=$(tput setaf 37)
         green=$(tput setaf 64)
         orange=$(tput setaf 166)
@@ -123,7 +150,26 @@ set_prompts() {
 
     fi
 
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # Highlight the user name when logged in as root.
+    if [[ "${USER}" == "root" ]]; then
+    	user_style="${red}"
+    else
+    	user_style="${green}"
+    fi
+
+    # Highlight the hostname when connected via SSH.
+    if [[ "${SSH_TTY}" ]]; then
+    	host_style="${bold}${yellow}"
+    else
+    	host_style="${green}"
+    fi
+
+    # find exit status of last run command
+    if [ $? -ne 0 ]; then
+        user_input="${red}"
+    else
+        user_input="${blue}"
+    fi
 
     # Prompt Statement variables.
     # http://ss64.com/bash/syntax-prompt.html
@@ -131,84 +177,64 @@ set_prompts() {
     # ------------------------------------------------------------------
     # | PS1 - Default interactive prompt                               |
     # ------------------------------------------------------------------
-
-    PS1="\[\033]0;\W\007\]" # Terminal title (set to the
-                            # current working directory)
-
-    PS1+="$reset$bold"
-    PS1+="$orange\u"        # Username
-    PS1+="$white@"
-    PS1+="$yellow\h"        # Host
-    PS1+="$white: "
-    PS1+="$green\w"         # Working directory
-    PS1+="\$(get_git_repository_details \"$white on $cyan\")"
+    # Terminal title (set to the current working directory)
+    PS1="\[\033]0;\W\007\]"
+    # start user input with new line
+    PS1+="\n$reset"
+    # Add timestamp
+    PS1+="$green\t$reset"
+    # Add connector
+    PS1+=" "
+    # Set username
+    PS1+="$user_style\u$reset"
+    # Add connector
+    PS1+="$reset @ $reset"
+    # Set username
+    PS1+="$host_style\H$reset"
+    # Add connector
+    PS1+="$reset: $reset"
+    # Set working directory
+    PS1+="$reset\W$reset"
+    # Add connector
+    PS1+=" "
+    # Git repository branch details
+    PS1+="$purple\`git_branch\`$reset"
+    # Add connector
+    PS1+=" "
+    # Git repository status details
+    PS1+="$yellow\`git_status\`$reset"
+    # New line to split current full directory
     PS1+="\n"
-    PS1+="\[$reset\]\[$white\]$ \[$reset\]"
-
+    # Set current full directory
+    PS1+="$green< $reset\`pwd\`$green >$reset"
+    # New line to split for user input
+    PS1+="\n"
+    # User input line and reset colors
+    PS1+="$user_input$ $reset"
     export PS1
 
     # ------------------------------------------------------------------
     # | PS2 - Continuation interactive prompt                          |
     # ------------------------------------------------------------------
-
     PS2="⚡ "
-
     export PS2
 
     # ------------------------------------------------------------------
     # | PS4 - Debug prompt                                             |
     # ------------------------------------------------------------------
-
-    # e.g:
-    #
-    # The GNU `date` command has the `%N` interpreted sequence while
-    # other implementations don't (on macOS `gdate` can be used instead
-    # of the native `date` if the `coreutils` package has been installed).
-    #
-    # local dateCmd=""
-    #
-    # if [ "$(date +%N)" != "N" ] || \
-    #    [ ! -x "$(command -v "gdate")" ]; then
-    #    dateCmd="date +%s.%N"
-    # else
-    #    dateCmd="gdate +%s.%N"
-    # fi
-    #
-    # PS4="+$( tput cr && tput cuf 6 &&
-    #          printf "$yellow %s $green%6s $reset" "$($dateCmd)" "[$LINENO]" )"
-    #
-    # PS4 output:
-    #
-    #   ++    1357074705.875970000  [123] '[' 1 == 0 ']'
-    #   └──┬─┘└────┬───┘ └───┬───┘ └──┬─┘ └──────┬─────┘
-    #      │       │         │        │          │
-    #      │       │         │        │          └─ command
-    #      │       │         │        └─ line number
-    #      │       │         └─ nanoseconds
-    #      │       └─ seconds since 1970-01-01 00:00:00 UTC
-    #      └─ depth-level of the subshell
-
     PS4="+$( tput cr 2> /dev/null;
-             tput cuf 6 2> /dev/null;
-             printf "%s" "$reset" )"
-
+    tput cuf 6 2> /dev/null;
+    printf "%s" "$reset" )"
     export PS4
-
 }
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 main() {
     enable_color_support
     set_prompts
 }
 
+# Execute and cleanup
 main
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# Cleanup.
-
 unset -f enable_color_support
-unset -f main
 unset -f set_prompts
+unset -f main

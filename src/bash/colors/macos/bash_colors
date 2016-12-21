@@ -30,5 +30,4 @@ export LSCOLORS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Enable color support.
-
-alias ls="ls -G"
+# alias ls="ls -G"

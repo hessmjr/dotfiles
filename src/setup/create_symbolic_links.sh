@@ -68,7 +68,7 @@ main() {
     create_symlinks "$@"
 
     # source the bash profile for the prompt to change now
-    if [ ! -e "$HOME/.bash_profile" ]; then
+    if [ -e "$HOME/.bash_profile" ]; then
         . "$HOME/.bash_profile"
     fi
 }

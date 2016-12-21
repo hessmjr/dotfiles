@@ -73,9 +73,8 @@ main() {
     ./install/main.sh
     ./preferences/main.sh
 
-    print_in_purple "\n Process complete. \n"
-    printf "\n"
-
+    # finish the setup and return home directory
+    print_in_purple "\n • Process complete. \n\n"
     cd "$HOME"
 }
 

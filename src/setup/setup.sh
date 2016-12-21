@@ -76,6 +76,8 @@ main() {
 
     print_in_purple "\n Process complete. \n"
     printf "\n"
+
+    cd "$HOME"
 }
 
 

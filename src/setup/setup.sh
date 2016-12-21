@@ -72,9 +72,6 @@ main() {
     ./create_local_config_files.sh
     ./install/main.sh
     ./preferences/main.sh
-
-    # Ask user if they want to restart
-    ./restart.sh
 }
 
 

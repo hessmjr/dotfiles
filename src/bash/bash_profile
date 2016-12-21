@@ -1,6 +1,26 @@
 #!/bin/bash
 
 
+get_os() {
+
+    local os=""
+    local kernelName=""
+
+    kernelName="$(uname -s)"
+
+    # figure out what kernel matches to set os name (macOS and Ubuntu only)
+    if [ "$kernelName" == "Darwin" ]; then
+        os="macos"
+    elif [ "$kernelName" == "Linux" ] && [ -e "/etc/lsb-release" ]; then
+        os="ubuntu"
+    else
+        os="$kernelName"
+    fi
+
+    printf "%s" "$os"
+}
+
+
 source_bash_files() {
 
     declare -r CURRENT_DIRECTORY="$(pwd)"

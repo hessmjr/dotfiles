@@ -18,10 +18,6 @@ execute "defaults write com.apple.CrashReporter UseUNC 1" \
     "Make crash reports appear as notifications"
 
 
-execute "defaults write com.apple.print.PrintingPrefs 'Quit When Finished' -bool true" \
-    "Automatically quit the printer app once the print jobs are completed"
-
-
 # Disables shadoes that appear in applications when taking screen shots
 execute "defaults write com.apple.screencapture disable-shadow -bool true" \
     "Disable shadow in screenshots"

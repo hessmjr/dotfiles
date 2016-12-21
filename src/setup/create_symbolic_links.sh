@@ -15,7 +15,6 @@ create_symlinks() {
         "bash/bash_profile"
         "bash/bash_prompt"
         "bash/bashrc"
-        "bash/curlrc"
         "bash/hushlogin"
     )
 

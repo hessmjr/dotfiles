@@ -1,7 +1,6 @@
 # Dotfiles
 Dotfiles for use when setting up environments in MacOS or Ubuntu.
 
-**Still work in progress**
 
 ## Installation
 Review files prior to usage.  May have unintended consequences otherwise. **You have been warned!**
@@ -13,7 +12,7 @@ Using cURL on MacOS
 
 ```sh
 cd; curl -#L https://github.com/hessmjr/dotfiles/tarball/master |
-tar -xzv --strip-components 1 --exclude={README.md,.gitignore,LICENSE} && source bootstrap.sh
+tar -xz --strip-components 1 --exclude={README.md,.gitignore,LICENSE} && source bootstrap.sh
 ```
 
 ### Using Wget
@@ -28,10 +27,6 @@ Using wget on Ubuntu
 min macOS -> 10.10
 min ubuntu -> 14.04
 any existing files will be prompted to move to ~/.backups folder
-
-
-## Includes
-TODO - update when complete
 
 
 ## License

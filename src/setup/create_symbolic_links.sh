@@ -44,7 +44,7 @@ create_symlinks() {
 
                 # create backup directory if doesn't exist
                 if [ ! -e "$backupFiles" ]; then
-                    mkd "$backupFiles"
+                    mkdir "$backupFiles"
                 fi
 
                 # move existing file

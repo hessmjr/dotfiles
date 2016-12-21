@@ -13,7 +13,7 @@ Using cURL on MacOS
 
 ```sh
 cd; curl -#L https://github.com/hessmjr/dotfiles/tarball/master |
-tar -xzv --strip-components 1 --exclude={README.md,.gitignore,LICENSE} && source init.sh
+tar -xzv --strip-components 1 --exclude={README.md,.gitignore,LICENSE} && source bootstrap.sh
 ```
 
 ### Using Wget

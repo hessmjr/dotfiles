@@ -22,7 +22,7 @@ create_symlinks() {
     local i=""
     local sourceFile=""
     local targetFile=""
-    local backupFile="$HOME/.backups"
+    local backupFiles="$HOME/.backups"
 
     for i in "${FILES_TO_SYMLINK[@]}"; do
 
@@ -44,8 +44,8 @@ create_symlinks() {
             if answer_is_yes; then
 
                 # create backup directory if doesn't exist
-                if [ ! -e "$backupFile" ]; then
-                    mkd "$backupFile"
+                if [ ! -e "$backupFiles" ]; then
+                    mkd "$backupFiles"
                 fi
 
                 # move existing file

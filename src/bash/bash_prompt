@@ -147,16 +147,16 @@ build_prompt() {
 
     # Highlight the hostname when connected via SSH.
     if [[ "${SSH_TTY}" ]]; then
-    	host_style="${bold}${yellow}"
+    	host_style="${yellow}"
     else
     	host_style="${green}"
     fi
 
     # find exit status of last run command
-    if [ $? -ne 0 ]; then
-        user_input="${red}"
-    else
+    if [ $? == "0" ]; then
         user_input="${blue}"
+    else
+        user_input="${red}"
     fi
 
     # Prompt Statement variables.

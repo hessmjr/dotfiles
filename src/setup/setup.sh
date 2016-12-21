@@ -70,8 +70,13 @@ main() {
     ./create_directories.sh
     ./create_symbolic_links.sh "$@"
     ./create_local_config_files.sh
-    ./install/main.sh
-    ./preferences/main.sh
+
+    # Prompt if want to run installation scripts
+    ask_for_confirmation "Run installation?"
+    if answer_is_yes; then
+        ./install/main.sh
+        ./preferences/main.sh
+    fi
 
     print_in_purple "\n Process complete. \n"
     printf "\n"

@@ -10,9 +10,6 @@ install_apps() {
     # Install tools for compiling/building software from source.
     install_package "Build Essential" "build-essential"
 
-    # GnuPG archive keys of the Debian archive.
-    install_package "GnuPG archive keys" "debian-archive-keyring"
-
     # Software which is not included by default
     # in Ubuntu due to legal or copyright reasons.
     printf "\n"

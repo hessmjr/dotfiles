@@ -24,8 +24,16 @@ alias l="ls -x ${colorflag}"
 alias la="ls -A ${colorflag}"
 
 
+# List all files colorized, including dot files
+alias lsa="ls -ah ${colorflag}"
+
+
+# List non-hidden files colorized in long format, including dot files convert sizes to human readable
+alias ll="ls -lh ${colorflag}"
+
+
 # List all files colorized in long format, including dot files convert sizes to human readable
-alias ll="ls -alh ${colorflag}"
+alias lla="ls -alh ${colorflag}"
 
 
 # List only directories

@@ -2,7 +2,6 @@
 
 
 enable_color_support() {
-
     if [[ $COLORTERM == gnome-* && $TERM == xterm ]] \
         && infocmp gnome-256color &> /dev/null; then
         export TERM="gnome-256color"
@@ -20,8 +19,13 @@ enable_color_support() {
 
 
 prompt_git_branch() {
-
     local branch=""
+
+    # Ensure git exists
+    if [ hash git 2> /dev/null ]; then
+        echo ""
+        return
+    fi
 
     # Check if the current directory is in a Git repository.
     ! git rev-parse &>/dev/null \
@@ -46,10 +50,15 @@ prompt_git_branch() {
 
 
 prompt_git_status() {
-    local git_command=`git status 2>&1 | tee`
-
-    #local branch_name=""
     local symbols=""
+
+    # Ensure git exists
+    if [ hash git 2> /dev/null ]; then
+        echo ""
+        return
+    fi
+
+    local git_command=`git status 2>&1 | tee`
 
     # Check if the current directory is in a Git repository.
     ! git rev-parse &>/dev/null \
@@ -114,7 +123,7 @@ prompt_git_status() {
 build_prompt() {
 
     local bold=$(tput bold 2> /dev/null)
-    local reset="\[\e[0m\]"
+    local reset="\[\e[0;00m\]"
 
     local black="\[\e[1;30m\]"
     local red="\[\e[1;31m\]"
@@ -125,26 +134,6 @@ build_prompt() {
     local cyan="\[\e[1;36m\]"
     local white="\[\e[1;37m\]"
 
-    # set colors to solarized if available
-    if [ "$(tput colors 2> /dev/null || printf "0")" -ge 256 ]; then
-        # Solarized colors.
-        # https://github.com/altercation/solarized/tree/master/iterm2-colors-solarized#the-values
-        red=$(tput setaf 124)
-        green=$(tput setaf 64)
-        yellow=$(tput setaf 136)
-        blue=$(tput setaf 33)
-        purple=$(tput setaf 61)
-        cyan=$(tput setaf 37)
-        white=$(tput setaf 15)
-    fi
-
-    # Highlight the user name when logged in as root.
-    if [[ "${USER}" == "root" ]]; then
-        host_style="${red}"
-    else
-        host_style="${green}"
-    fi
-
     # Highlight the hostname when connected via SSH.
     if [[ "${SSH_TTY}" ]]; then
     	host_style="${yellow}"
@@ -153,7 +142,7 @@ build_prompt() {
     fi
 
     # find exit status of last run command
-    if [ $? == "0" ]; then
+    if [ $? == '0' ]; then
         user_input="${blue}"
     else
         user_input="${red}"
@@ -174,7 +163,7 @@ build_prompt() {
     # Add connector
     PS1+=" "
     # Set username
-    PS1+="$user_style\u$reset"
+    PS1+="$black\u$reset"
     # Add connector
     PS1+="$reset @ $reset"
     # Set hostname
@@ -204,7 +193,7 @@ build_prompt() {
     # ------------------------------------------------------------------
     # | PS2 - Continuation interactive prompt                          |
     # ------------------------------------------------------------------
-    PS2=" ⚡ $reset"
+    PS2="$user_input⚡ $reset"
     export PS2
 
     # ------------------------------------------------------------------
@@ -217,15 +206,7 @@ build_prompt() {
 }
 
 
-main() {
-    enable_color_support
-    #set_prompts
-}
-
-
 # Execute and cleanup
-PROMPT_COMMAND=build_prompt
-main
+enable_color_support
 unset -f enable_color_support
-unset -f set_prompts
-unset -f main
+PROMPT_COMMAND=build_prompt

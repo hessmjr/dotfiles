@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# actually clear the screen
+alias clear=clear && printf '\e[3J'
 
 # Show/hide hidden files in Finder
 alias show-files="defaults write com.apple.finder AppleShowAllFiles -bool true \
@@ -31,3 +33,4 @@ alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
 alias localip="ipconfig getifaddr en0"
 alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' \
                 | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
+

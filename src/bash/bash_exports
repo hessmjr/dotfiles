@@ -51,3 +51,7 @@ export PYTHONIOENCODING="UTF-8"
 
 # Turn off homebrew analytics
 export HOMEBREW_NO_ANALYTICS=1
+
+
+# Java version set to 1.8 by default
+export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)

@@ -16,13 +16,25 @@ setup plugins and make changes to zsh file
 export ZSH=~/.oh-my-zsh
 source $ZSH/oh-my-zsh.sh
 
-# Load custom configurations
-source ~/.zsh/custom/aliases.zsh
-source ~/.zsh/custom/functions.zsh
-source ~/.zsh/custom/private.zsh
-source ~/.zsh/custom/prompt.zsh
-
-# Additional settings...
+# Load custom configurations if they exist
+if [ -f ~/.zsh/custom/aliases.zsh ]; then
+    source ~/.zsh/custom/aliases.zsh
+fi
+if [ -f ~/.zsh/custom/custom.zsh ]; then
+    source ~/.zsh/custom/custom.zsh
+fi
+if [ -f ~/.zsh/custom/exports.zsh ]; then
+    source ~/.zsh/custom/exports.zsh
+fi
+if [ -f ~/.zsh/custom/functions.zsh ]; then
+    source ~/.zsh/custom/functions.zsh
+fi
+if [ -f ~/.zsh/custom/private.zsh ]; then
+    source ~/.zsh/custom/private.zsh
+fi
+if [ -f ~/.zsh/custom/prompt.zsh ]; then
+    source ~/.zsh/custom/prompt.zsh
+fi
 ```
 
 ```

@@ -56,7 +56,7 @@ Symlink files instead of copy/paste changes.
 ```
 mkdir -p ~/.zsh/custom
 
-ln -s ~/dotfiles/.zsh/custom/aliases.zsh ~/.zsh/custom/aliases.zsh
+ln -s ~/dotfiles/src/zsh/aliases.zsh ~/.zsh/custom/aliases.zsh
 ```
 
 

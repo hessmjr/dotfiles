@@ -26,6 +26,7 @@ if [ "$(hostname)" = "BZXXKN2JF93KH2" ]; then
   fi
 
   export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+  export PATH="/usr/local/sbin:$PATH"
 
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm

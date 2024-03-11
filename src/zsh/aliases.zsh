@@ -1,5 +1,7 @@
 # COMMON ALIASES NEEDED
 
+alias open="open ."
+
 # I like quick access to my .zshrc file
 alias edit_zshrc="open -a TextEdit ~/.zshrc"
 alias source_zsh="source ~/.zshrc"

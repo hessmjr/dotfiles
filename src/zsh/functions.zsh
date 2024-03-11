@@ -1,10 +1,10 @@
 
 # Empty the Trash and clean up the system
-clean_up_trash() {
+clean_up_mac() {
     # Empty the Trash on all mounted volumes and the main HDD
     echo "Emptying the Trash on all mounted volumes and the main HDD..."
     sudo rm -frv /Volumes/*/.Trashes
-    sudo rm -frv ~/.Trash
+    sudo rm -frv ~/.Trash/*
 
     # Clear Apple's System Logs to improve shell startup speed
     echo "Clearing Apple's System Logs..."

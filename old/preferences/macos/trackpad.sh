@@ -1,12 +1,9 @@
 #!/bin/bash
 
-
 cd "$(dirname "${BASH_SOURCE[0]}")" \
     && . "../../utils.sh"
 
-
 print_in_purple "\n   Trackpad\n\n"
-
 
 # Enables tapping of mouse pad to click instead of hard press
 execute "defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true && \
@@ -14,7 +11,6 @@ execute "defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Click
          defaults write -g com.apple.mouse.tapBehavior -int 1 && \
          defaults -currentHost write -g com.apple.mouse.tapBehavior -int 1" \
     "Enable 'Tap to click'"
-
 
 # Two finger tap can be used for 'right-click'
 execute "defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -bool true && \

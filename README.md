@@ -52,6 +52,14 @@ fi
 
 
 
+Symlink files instead of copy/paste changes.
+```
+mkdir -p ~/.zsh/custom
+
+ln -s ~/dotfiles/.zsh/custom/aliases.zsh ~/.zsh/custom/aliases.zsh
+```
+
+
 When installing using the following commands it will dump the `src` directory into whatever directory you're currently in.  It's suggested to place it into `~/projects/dotfiles` however that is not necessary.  Any existing files that overlap will be prompted to move to `~/.backups`
 
 ### Using cURL

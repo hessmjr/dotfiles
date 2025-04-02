@@ -1,9 +1,7 @@
 # workspace specific settings
 
-if [ "$(hostname)" = "BZXXKN2JF93KH2" ]; then
+if [ "$(whoami)" = "mark.hess" ]; then
 
-  # asdf specific
-  . "$HOME/.asdf/asdf.sh"
   # append completions to fpath
   fpath=(${ASDF_DIR}/completions $fpath)
   # initialise completions with ZSH's compinit
@@ -31,6 +29,9 @@ if [ "$(hostname)" = "BZXXKN2JF93KH2" ]; then
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+  # asdf specific
+  . "$HOME/.asdf/asdf.sh"
 
   # quick mongo start/stop/restart
   alias mongo_start="brew services start mongodb-community"

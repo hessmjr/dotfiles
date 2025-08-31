@@ -1,273 +1,340 @@
 #!/bin/bash
 
-answer_is_yes() {
-    [[ "$REPLY" =~ ^[Yy]$ ]] \
-        && return 0 \
-        || return 1
+# Dotfiles Utilities
+# Shared functions and formatting for all dotfiles scripts
+
+# Colors for output
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+PURPLE='\033[0;35m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Print functions
+print_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
-ask() {
-    print_question "$1"
-    read -r
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
-ask_for_confirmation() {
-    print_question "$1 (y/n) "
-    read -r -n 1
-    printf "\n"
+print_section() {
+    echo -e "${PURPLE}[SECTION]${NC} $1"
 }
 
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Common utility functions
 ask_for_sudo() {
-    sudo -v &> /dev/null
+    # Ask for the administrator password upfront
+    if sudo -n true 2>/dev/null; then
+        # We have sudo access, no need to ask
+        return 0
+    fi
 
+    print_info "This script requires administrator access to install some components."
+    print_info "You may be prompted for your password."
+
+    # Keep-alive: update existing `sudo` time stamp until script has finished
+    sudo -v
     while true; do
         sudo -n true
         sleep 60
         kill -0 "$$" || exit
-    done &> /dev/null &
+    done 2>/dev/null &
 }
 
-cmd_exists() {
-    command -v "$1" &> /dev/null
-}
+# Progress tracking and user interaction functions
+ask_for_confirmation() {
+    local message="$1"
+    local default="${2:-y}"  # Default to 'y' if not specified
 
-kill_all_subprocesses() {
+    # Check if we're in non-interactive mode
+    if [[ "${NON_INTERACTIVE:-false}" == "true" ]]; then
+        print_info "Non-interactive mode: using default '$default' for '$message'"
+        if [[ "$default" == "y" ]]; then
+            return 0
+        else
+            return 1
+        fi
+    fi
 
-    local i=""
+    local prompt
+    if [[ "$default" == "y" ]]; then
+        prompt="$message (Y/n): "
+    else
+        prompt="$message (y/N): "
+    fi
 
-    for i in $(jobs -p); do
-        kill "$i"
-        wait "$i" &> /dev/null
+    while true; do
+        read -p "$prompt" -r response
+        case "$response" in
+            [Yy]|"") return 0 ;;  # Yes or empty (default)
+            [Nn]) return 1 ;;     # No
+            *) print_warning "Please answer 'y' or 'n'" ;;
+        esac
     done
+}
+
+ask_for_confirmation_with_details() {
+    local title="$1"
+    local details="$2"
+    local default="${3:-y}"
+
+    print_section "$title"
+    if [[ -n "$details" ]]; then
+        print_info "$details"
+    fi
+
+    ask_for_confirmation "Proceed with this step?" "$default"
+}
+
+# Progress tracking
+PROGRESS_CURRENT=0
+PROGRESS_TOTAL=0
+
+init_progress() {
+    PROGRESS_CURRENT=0
+    PROGRESS_TOTAL="$1"
+    print_info "Starting installation of $PROGRESS_TOTAL components..."
+}
+
+update_progress() {
+    local step_name="$1"
+    PROGRESS_CURRENT=$((PROGRESS_CURRENT + 1))
+    local percentage=$((PROGRESS_CURRENT * 100 / PROGRESS_TOTAL))
+    print_info "[$PROGRESS_CURRENT/$PROGRESS_TOTAL] ($percentage%) $step_name"
+}
+
+# App installation helpers with prompts
+prompt_for_app_installation() {
+    local app_name="$1"
+    local app_path="$2"
+    local details="$3"
+
+    print_section "$app_name Installation"
+
+    # Check if app is already installed
+    if is_app_installed "$app_path"; then
+        print_success "$app_name is already installed at $app_path"
+        if ask_for_confirmation "Would you like to reinstall $app_name?" "n"; then
+            print_info "Will reinstall $app_name"
+            return 0
+        else
+            print_info "Skipping $app_name installation"
+            return 1
+        fi
+    fi
+
+    # Show installation details and ask for confirmation
+    if [[ -n "$details" ]]; then
+        print_info "$details"
+    fi
+
+    if ask_for_confirmation "Install $app_name?" "y"; then
+        print_info "Will install $app_name"
+        return 0
+    else
+        print_info "Skipping $app_name installation"
+        return 1
+    fi
 }
 
 execute() {
+    local command="$1"
+    local description="$2"
 
-    local -r CMDS="$1"
-    local -r MSG="${2:-$1}"
-    local -r TMP_FILE="$(mktemp /tmp/XXXXX)"
-
-    local exitCode=0
-    local cmdsPID=""
-
-    # If the current process is ended,
-    # also end all its subprocesses.
-    set_trap "EXIT" "kill_all_subprocesses"
-
-
-    # Execute commands in background
-    eval "$CMDS" \
-        &> /dev/null \
-        2> "$TMP_FILE" &
-
-    cmdsPID=$!
-
-    # Show a spinner if the commands
-    # require more time to complete.
-    show_spinner "$cmdsPID" "$CMDS" "$MSG"
-
-    # Wait for the commands to no longer be executing
-    # in the background, and then get their exit code.
-    wait "$cmdsPID" &> /dev/null
-    exitCode=$?
-
-    # Print output based on what happened.
-    print_result $exitCode "$MSG"
-
-    if [ $exitCode -ne 0 ]; then
-        print_error_stream < "$TMP_FILE"
+    if [[ -n "$description" ]]; then
+        print_info "$description"
     fi
 
-    rm -rf "$TMP_FILE"
-
-    return $exitCode
-}
-
-get_answer() {
-    printf "%s" "$REPLY"
-}
-
-get_os() {
-
-    local os=""
-    local kernelName=""
-
-    kernelName="$(uname -s)"
-
-    # figure out what kernel matches to set os name (macOS and Ubuntu only)
-    if [ "$kernelName" == "Darwin" ]; then
-        os="macos"
-    elif [ "$kernelName" == "Linux" ] && [ -e "/etc/lsb-release" ]; then
-        os="ubuntu"
+    if eval "$command"; then
+        print_success "Command executed successfully"
+        return 0
     else
-        os="$kernelName"
+        print_error "Command failed: $command"
+        return 1
     fi
-
-    printf "%s" "$os"
-}
-
-get_os_version() {
-
-    local os=""
-    local version=""
-
-    os="$(get_os)"
-
-    if [ "$os" == "macos" ]; then
-        version="$(sw_vers -productVersion)"
-    elif [ "$os" == "ubuntu" ]; then
-        version="$(lsb_release -d | cut -f2 | cut -d' ' -f2)"
-    fi
-
-    printf "%s" "$version"
-}
-
-is_git_repository() {
-    git rev-parse &> /dev/null
-}
-
-is_supported_version() {
-
-    declare -a v1=(${1//./ })
-    declare -a v2=(${2//./ })
-    local i=""
-
-    # Fill empty positions in v1 with zeros.
-    for (( i=${#v1[@]}; i<${#v2[@]}; i++ )); do
-        v1[i]=0
-    done
-
-
-    for (( i=0; i<${#v1[@]}; i++ )); do
-
-        # Fill empty positions in v2 with zeros.
-        if [[ -z ${v2[i]} ]]; then
-            v2[i]=0
-        fi
-
-        if (( 10#${v1[i]} < 10#${v2[i]} )); then
-            return 1
-        elif (( 10#${v1[i]} > 10#${v2[i]} )); then
-            return 0
-        fi
-
-    done
-}
-
-mkd() {
-    if [ -n "$1" ]; then
-        if [ -e "$1" ]; then
-            if [ ! -d "$1" ]; then
-                print_error "$1 - a file with the same name already exists!"
-            else
-                print_success "$1"
-            fi
-        else
-            execute "mkdir -p $1" "$1"
-        fi
-    fi
-}
-
-print_error() {
-    print_in_red "   [✖] $1 $2\n"
-}
-
-print_error_stream() {
-    while read -r line; do
-        print_error "↳ ERROR: $line"
-    done
-}
-
-print_in_color() {
-    printf "%b" \
-        "$(tput setaf "$2" 2> /dev/null)" \
-        "$1" \
-        "$(tput sgr0 2> /dev/null)"
-}
-
-print_in_green() {
-    print_in_color "$1" 2
-}
-
-print_in_purple() {
-    print_in_color "$1" 5
-}
-
-print_in_red() {
-    print_in_color "$1" 1
-}
-
-print_in_yellow() {
-    print_in_color "$1" 3
-}
-
-print_question() {
-    print_in_yellow "   [?] $1"
 }
 
 print_result() {
+    local result="$1"
+    local message="$2"
 
-    if [ "$1" -eq 0 ]; then
-        print_success "$2"
+    if [[ "$result" -eq 0 ]]; then
+        print_success "$message"
     else
-        print_error "$2"
+        print_error "$message"
+    fi
+}
+
+get_os() {
+    local os="$(uname -s)"
+    case "$os" in
+        Darwin*) echo "macos" ;;
+        Linux*)  echo "linux" ;;
+        *)       echo "unknown" ;;
+    esac
+}
+
+check_macos() {
+    if [[ "$(get_os)" != "macos" ]]; then
+        print_error "This script is designed for macOS only"
+        exit 1
+    fi
+}
+
+# File and directory utilities
+create_backup_dir() {
+    local backup_dir="$HOME/dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
+    mkdir -p "$backup_dir"
+    echo "$backup_dir"
+}
+
+backup_file() {
+    local source_file="$1"
+    local backup_dir="$2"
+
+    if [[ -f "$source_file" ]] || [[ -d "$source_file" ]]; then
+        local filename=$(basename "$source_file")
+        local backup_path="$backup_dir/$filename"
+
+        if cp -R "$source_file" "$backup_path" 2>/dev/null; then
+            print_success "Backed up $filename"
+            return 0
+        else
+            print_warning "Failed to backup $filename"
+            return 1
+        fi
+    fi
+    return 0
+}
+
+create_symlink() {
+    local source="$1"
+    local target="$2"
+    local backup_dir="$3"
+
+    # Create backup if target exists
+    if [[ -L "$target" ]] || [[ -f "$target" ]] || [[ -d "$target" ]]; then
+        if [[ -n "$backup_dir" ]]; then
+            backup_file "$target" "$backup_dir"
+        fi
+        rm -rf "$target"
     fi
 
-    return "$1"
+    # Create symlink
+    if ln -sf "$source" "$target"; then
+        print_success "Created symlink: $target -> $source"
+        return 0
+    else
+        print_error "Failed to create symlink: $target -> $source"
+        return 1
+    fi
 }
 
-print_success() {
-    print_in_green "   [✔] $1\n"
+# macOS specific utilities
+close_system_preferences() {
+    print_info "Closing System Preferences..."
+    osascript -e 'tell application "System Preferences" to quit' 2>/dev/null || true
 }
 
-print_warning() {
-    print_in_yellow "   [!] $1\n"
+# Apps installer utilities (moved from apps/installers/utils.sh)
+create_temp_dir() {
+    local temp_dir=$(mktemp -d)
+    echo "$temp_dir"
 }
 
-set_trap() {
-
-    trap -p "$1" | grep "$2" &> /dev/null \
-        || trap '$2' "$1"
+cleanup_temp_dir() {
+    local temp_dir="$1"
+    if [[ -n "$temp_dir" ]] && [[ -d "$temp_dir" ]]; then
+        cd /
+        rm -rf "$temp_dir"
+    fi
 }
 
-skip_questions() {
+mount_dmg() {
+    local dmg_file="$1"
+    local volume_name="$2"
 
-     while :; do
-        case $1 in
-            -y|--yes) return 0;;
-                   *) break;;
-        esac
-        shift 1
-    done
+    if hdiutil attach "$dmg_file" -quiet; then
+        print_success "DMG mounted successfully"
 
-    return 1
+        # Find the mounted volume
+        local mount_point=$(hdiutil info | grep "/Volumes/$volume_name" | head -1 | awk '{print $3}')
+
+        if [[ -n "$mount_point" ]]; then
+            echo "$mount_point"
+            return 0
+        else
+            print_warning "Could not find mounted $volume_name volume"
+            return 1
+        fi
+    else
+        print_warning "Failed to mount DMG file"
+        return 1
+    fi
 }
 
-show_spinner() {
+unmount_dmg() {
+    local mount_point="$1"
+    if [[ -n "$mount_point" ]]; then
+        hdiutil detach "$mount_point" -quiet
+    fi
+}
 
-    local -r FRAMES='/-\|'
+download_file() {
+    local url="$1"
+    local filename="$2"
 
-    # shellcheck disable=SC2034
-    local -r NUMBER_OR_FRAMES=${#FRAMES}
+    if curl -L -o "$filename" "$url"; then
+        print_success "Download completed"
+        return 0
+    else
+        print_warning "Failed to download file"
+        return 1
+    fi
+}
 
-    local -r CMDS="$2"
-    local -r MSG="$3"
-    local -r PID="$1"
+extract_zip() {
+    local zip_file="$1"
 
-    local i=0
-    local frameText=""
+    if unzip -q "$zip_file"; then
+        print_success "Extraction completed"
+        return 0
+    else
+        print_warning "Failed to extract zip file"
+        return 1
+    fi
+}
 
-    # Display spinner while the commands are being executed.
-    while kill -0 "$PID" &>/dev/null; do
+install_app_to_applications() {
+    local source_app="$1"
+    local app_name="$2"
 
-        frameText="   [${FRAMES:i++%NUMBER_OR_FRAMES:1}] $MSG"
+    if cp -R "$source_app" "/Applications/"; then
+        print_success "$app_name installed successfully"
+        return 0
+    else
+        print_warning "Failed to copy to Applications directory"
+        return 1
+    fi
+}
 
-        # Print frame text.
-        printf "%s" "$frameText"
+is_app_installed() {
+    local app_path="$1"
 
-        sleep 0.2
-
-        # Clear frame text.
-        printf "\r"
-    done
+    if [[ -d "$app_path" ]]; then
+        return 0  # App is installed
+    else
+        return 1  # App is not installed
+    fi
 }

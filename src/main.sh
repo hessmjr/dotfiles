@@ -65,10 +65,18 @@ check_dotfiles_status() {
     fi
 
     # Run macOS setup script to check status
-    if "$SCRIPT_DIR/src/macos/setup.sh" --check-only 2>/dev/null; then
+    if "$SCRIPT_DIR/src/macos/main.sh" --check-only 2>/dev/null; then
         print_info "macOS preferences are up to date"
     else
         print_info "macOS preferences updates needed"
+        needs_update=true
+    fi
+
+    # Run apps setup script to check status
+    if "$SCRIPT_DIR/src/apps/main.sh" --check-only 2>/dev/null; then
+        print_info "Applications are up to date"
+    else
+        print_info "Applications updates needed"
         needs_update=true
     fi
 
@@ -76,7 +84,7 @@ check_dotfiles_status() {
         print_info "Updates needed - proceeding with installation/update"
         return 1
     else
-        print_success "All dotfiles and macOS preferences are properly configured and up to date!"
+        print_success "All dotfiles, macOS preferences, and applications are properly configured and up to date!"
         print_info "No installation needed - everything is already set up correctly."
         return 0
     fi
@@ -101,6 +109,15 @@ create_symlinks() {
         "$SCRIPT_DIR/src/macos/main.sh"
     else
         print_error "macOS setup script not found"
+        exit 1
+    fi
+
+    # Run apps setup script
+    if [[ -f "$SCRIPT_DIR/src/apps/main.sh" ]]; then
+        print_info "Running applications setup..."
+        "$SCRIPT_DIR/src/apps/main.sh"
+    else
+        print_error "Apps setup script not found"
         exit 1
     fi
 }

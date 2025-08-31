@@ -1,82 +1,44 @@
 # Dotfiles
-Dotfiles for use when setting up environments in MacOS.
 
-## Installation
-Review files prior to usage.  May have unintended consequences otherwise. **You have been warned!**
+Personal dotfiles configuration for macOS, featuring zsh customization and shell utilities.
 
-### Setup Oh-My-Zsh
-If desired, setup Oh-My-Zsh first (although not necessary).
+## Introduction
 
-setup plugins and make changes to zsh file
+This repository contains my personal dotfiles configuration for macOS. It includes zsh aliases, functions, exports, and prompt customization to enhance the terminal experience and productivity.
 
-```
-# ~/.zshrc
+## How to Setup
 
-# Load Oh-my-zsh
-export ZSH=~/.oh-my-zsh
-source $ZSH/oh-my-zsh.sh
+### Quick Install
 
-# Load custom configurations if they exist
-if [ -f ~/.zsh/custom/aliases.zsh ]; then
-    source ~/.zsh/custom/aliases.zsh
-fi
-if [ -f ~/.zsh/custom/custom.zsh ]; then
-    source ~/.zsh/custom/custom.zsh
-fi
-if [ -f ~/.zsh/custom/exports.zsh ]; then
-    source ~/.zsh/custom/exports.zsh
-fi
-if [ -f ~/.zsh/custom/functions.zsh ]; then
-    source ~/.zsh/custom/functions.zsh
-fi
-if [ -f ~/.zsh/custom/private.zsh ]; then
-    source ~/.zsh/custom/private.zsh
-fi
-if [ -f ~/.zsh/custom/prompt.zsh ]; then
-    source ~/.zsh/custom/prompt.zsh
-fi
+**Using cURL:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/hessmjr/dotfiles/main/install.sh | bash
 ```
 
-```
-~/.zsh/
-├── custom/
-│   ├── aliases.zsh
-│   ├── functions.zsh
-│   ├── private.zsh
-│   ├── prompt.zsh
-│   ├── oh-my-zsh.zsh  # Your Oh-my-zsh customizations
-│   └── ...
-├── .zshrc
-└── ...
+**Using Wget:**
+```bash
+wget -O - https://raw.githubusercontent.com/hessmjr/dotfiles/main/install.sh | bash
 ```
 
+The install script will:
+- Verify you're running macOS
+- Create symbolic links for all configuration files
+- Back up any existing dotfiles to `~/.dotfiles_backup/`
+- Set up your zsh configuration
 
+### Post-Install
 
-Symlink files instead of copy/paste changes.
-```
-mkdir -p ~/.zsh/custom
+After installation, you may need to:
+- Restart your terminal
+- Or run `source ~/.zshrc` to reload the configuration
 
-ln -s ~/dotfiles/src/zsh/aliases.zsh ~/.zsh/custom/aliases.zsh
-```
+## Details
 
+### Current Features
 
-When installing using the following commands it will dump the `src` directory into whatever directory you're currently in.  It's suggested to place it into `~/projects/dotfiles` however that is not necessary.  Any existing files that overlap will be prompted to move to `~/.backups`
+- **Zsh Configuration**: Custom aliases, functions, exports, and prompt
+- **macOS Optimized**: Tailored specifically for macOS systems
+- **Safe Installation**: Automatic backup of existing dotfiles
+- **Easy Updates**: Simple git pull and re-run install script
 
-### Using cURL
-
-```sh
-cd; curl -#L https://github.com/hessmjr/dotfiles/tarball/master |
-tar -xz --strip-components 1 --exclude={README.md,.gitignore,LICENSE} && . bootstrap.sh
-```
-
-### Using Wgetb
-
-```sh
-cd; wget -O - https://github.com/hessmjr/dotfiles/tarball/master |
-tar -xz --strip-components 1 --exclude={README.md,.gitignore,LICENSE} && . bootstrap.sh
-```
-
-## License
-The MIT License (MIT)
-
-Disclaimer - most of this is compiled from various dotfile repos
+*This section will expand as we add more features and configurations to the repository.*

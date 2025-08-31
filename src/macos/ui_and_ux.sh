@@ -5,18 +5,9 @@
 
 set -e
 
-# Colors for output
-GREEN='\033[0;32m'
-PURPLE='\033[0;35m'
-NC='\033[0m' # No Color
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-print_section() {
-    echo -e "${PURPLE}[SECTION]${NC} $1"
-}
+# Source shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "$SCRIPT_DIR/utils.sh"
 
 # UI and UX preferences
 setup_ui_ux() {
@@ -34,6 +25,26 @@ setup_ui_ux() {
     # Disable shadow in screenshots
     defaults write com.apple.screencapture disable-shadow -bool true
     print_success "Disabled shadow in screenshots"
+
+    # Show hidden files in Finder
+    defaults write com.apple.finder AppleShowAllFiles -bool true
+    print_success "Enabled hidden files in Finder"
+
+    # Show file extensions in Finder
+    defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+    print_success "Enabled file extensions in Finder"
+
+    # Show path bar in Finder
+    defaults write com.apple.finder ShowPathbar -bool true
+    print_success "Enabled path bar in Finder"
+
+    # Show status bar in Finder
+    defaults write com.apple.finder ShowStatusBar -bool true
+    print_success "Enabled status bar in Finder"
+
+    # Restart Finder to apply file system changes
+    killall "Finder" &> /dev/null
+    print_success "Restarted Finder to apply file system changes"
 
     # Restart SystemUIServer to apply changes
     killall "SystemUIServer" &> /dev/null

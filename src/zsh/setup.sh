@@ -5,29 +5,9 @@
 
 set -e
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Print functions
-print_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+# Source shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "$SCRIPT_DIR/utils.sh"
 
 # Check current zsh dotfiles status
 check_zsh_status() {
@@ -169,7 +149,26 @@ main() {
     create_zsh_symlinks
 
     print_success "Zsh configuration setup complete!"
-    print_info "You may need to restart your terminal or run 'source ~/.zshrc' for changes to take effect"
+
+    # Provide important setup information
+    print_section "Next Steps Required"
+    print_warning "IMPORTANT: Manual setup is required to complete zsh configuration!"
+
+    print_info "1. Ensure Oh My Zsh is installed:"
+    print_info "   sh -c \"\$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\""
+
+    print_info "2. Add these lines to your ~/.zshrc file:"
+    print_info "   # Load custom configurations"
+    print_info "   source ~/.aliases.zsh"
+    print_info "   source ~/.exports.zsh"
+    print_info "   source ~/.functions.zsh"
+    print_info "   source ~/.prompt.zsh"
+
+    print_info "3. Reload your configuration:"
+    print_info "   source ~/.zshrc"
+
+    print_warning "Without these manual steps, your custom zsh configurations will not be loaded!"
+    print_info "See src/zsh/README.md for detailed setup instructions"
 }
 
 # Run main function

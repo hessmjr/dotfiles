@@ -52,6 +52,15 @@ run_macos_setup() {
     print_info "Setting up UI & UX preferences..."
     "$script_dir/ui_and_ux.sh"
 
+    print_info "Setting up System Updates preferences..."
+    "$script_dir/system_updates.sh"
+
+    print_info "Setting up Developer Tools..."
+    "$script_dir/developer_tools.sh"
+
+    print_info "Setting up Homebrew Development Environment..."
+    "$script_dir/homebrew.sh"
+
     print_success "All macOS preference scripts completed successfully!"
 }
 

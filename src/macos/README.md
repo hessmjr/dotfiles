@@ -24,7 +24,43 @@ The macOS setup script automatically configures various system preferences to op
 - Prevents .DS_Store file creation on network/USB volumes
 - Sets crash reports to appear as notifications instead of prompts
 - Disables shadows in screenshots
+- Shows hidden files in Finder
+- Shows file extensions in Finder
+- Shows path bar and status bar in Finder
 - Restarts system services to apply changes
+
+### System Updates
+- Disables automatic system updates and downloads
+- Disables automatic app updates from the App Store
+- Disables automatic security updates and XProtect updates
+- Disables automatic Gatekeeper certificate updates
+- Disables automatic Time Machine backups
+- Disables automatic Spotlight indexing updates
+- Disables automatic font validation
+- Disables automatic language model updates
+- Disables automatic Siri suggestions
+- Disables automatic Handoff and Continuity features
+
+### Developer Tools
+- Ensures Xcode Command Line Tools are installed
+- Checks for and installs updates to Command Line Tools
+- Automatically accepts Xcode license agreement
+- Provides essential development tools (git, gcc, make, etc.)
+- Verifies installation and functionality
+
+### Homebrew Development Environment
+- Installs and configures Homebrew package manager
+- Installs essential development packages:
+  - **git** - Version control system
+  - **asdf** - Version manager for multiple languages
+  - **awscli** - AWS command line interface
+  - **kubectx** - Kubernetes context switcher
+  - **kubernetes-cli** - Kubernetes command line tools
+  - **sops** - Secrets management
+  - **terraform** - Infrastructure as code
+- Updates and upgrades existing packages
+- Configures Homebrew analytics and completions
+- Verifies all package installations
 
 ## Installation
 
@@ -57,6 +93,20 @@ You can also run the macOS setup independently:
 - All changes are made using standard macOS `defaults` commands
 - System services are safely restarted to apply changes
 - No system files are modified, only user preferences
+- System update preferences require administrative privileges
+
+## Important Notes
+
+### System Updates
+The system updates script disables many automatic update mechanisms. This gives you full control over when updates happen, but also means you'll need to manually check for and install important updates, especially security patches.
+
+**To manually check for updates:**
+- Go to System Preferences > Software Update
+- Or use the command line: `softwareupdate -l`
+
+**To manually install updates:**
+- Use System Preferences > Software Update
+- Or use the command line: `softwareupdate -i -a`
 
 ## Customization
 

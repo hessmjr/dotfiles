@@ -5,18 +5,9 @@
 
 set -e
 
-# Colors for output
-GREEN='\033[0;32m'
-PURPLE='\033[0;35m'
-NC='\033[0m' # No Color
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-print_section() {
-    echo -e "${PURPLE}[SECTION]${NC} $1"
-}
+# Source shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "$SCRIPT_DIR/utils.sh"
 
 # Trackpad preferences
 setup_trackpad() {

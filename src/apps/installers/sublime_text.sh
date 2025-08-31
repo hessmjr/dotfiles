@@ -1,32 +1,13 @@
 #!/bin/bash
 
 # Sublime Text Setup Script
-# Downloads and installs Sublime Text directly from source
+# Downloads and installs Sublime Text editor
 
 set -e
 
-# Colors for output
-BLUE='\033[0;34m'
-GREEN='\033[0;32m'
-PURPLE='\033[0;35m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-print_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-print_section() {
-    echo -e "${PURPLE}[SECTION]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
+# Source shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "$SCRIPT_DIR/utils.sh"
 
 # Check if Sublime Text is already installed
 is_sublime_installed() {
@@ -49,39 +30,34 @@ install_sublime() {
     print_info "Downloading Sublime Text..."
 
     # Create temporary directory
-    local temp_dir=$(mktemp -d)
+    local temp_dir=$(create_temp_dir)
     cd "$temp_dir"
 
     # Download Sublime Text for macOS
     local download_url="https://download.sublimetext.com/sublime_text_build_4152_mac.zip"
-    local filename="sublime_text.zip"
+    local filename="SublimeText.zip"
 
-    if curl -L -o "$filename" "$download_url"; then
-        print_success "Download completed"
-
+    if download_file "$download_url" "$filename"; then
         # Extract the zip file
-        if unzip -q "$filename"; then
-            print_success "Extraction completed"
-
+        if extract_zip "$filename"; then
             # Move to Applications
-            if mv "Sublime Text.app" "/Applications/"; then
+            if install_app_to_applications "Sublime Text.app" "Sublime Text"; then
                 print_success "Sublime Text installed successfully"
             else
-                print_warning "Failed to move to Applications directory"
+                cleanup_temp_dir "$temp_dir"
                 return 1
             fi
         else
-            print_warning "Failed to extract zip file"
+            cleanup_temp_dir "$temp_dir"
             return 1
         fi
     else
-        print_warning "Failed to download Sublime Text"
+        cleanup_temp_dir "$temp_dir"
         return 1
     fi
 
     # Clean up
-    cd /
-    rm -rf "$temp_dir"
+    cleanup_temp_dir "$temp_dir"
 }
 
 # Main function

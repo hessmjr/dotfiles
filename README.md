@@ -4,8 +4,6 @@ Personal dotfiles configuration for macOS.
 
 ## How to Setup
 
-### Quick Install
-
 **Using cURL:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/hessmjr/dotfiles/main/install.sh | bash
@@ -21,12 +19,13 @@ wget -O - https://raw.githubusercontent.com/hessmjr/dotfiles/main/install.sh | b
 ./install.sh
 ```
 
-The install script will:
-- Verify you're running macOS
-- Check if dotfiles are already properly configured
-- Create symbolic links for all configuration files (if needed)
-- Back up any existing dotfiles to `~/.dotfiles_backup/`
-- Set up your zsh configuration
+**Installation Features:**
+- **Automatic detection** of existing configurations and applications
+- **Timestamped backups** (e.g., `~/.dotfiles_backup/20241201_143022/`)
+- **Preserves customizations** in organized backup directories
+- **Easy restoration** of previous configurations
+- **Progress tracking** throughout the entire setup process
+- **User prompts** for control over each installation step
 
 ### Post-Install
 
@@ -35,14 +34,6 @@ After installation, you may need to:
 - Restart Finder for file system preference changes
 - Restart SystemUIServer for UI preference changes
 - Add Homebrew to your shell profile if not already present
-
-**Installation Features:**
-- **Automatic detection** of existing configurations and applications
-- **Timestamped backups** (e.g., `~/.dotfiles_backup/20241201_143022/`)
-- **Preserves customizations** in organized backup directories
-- **Easy restoration** of previous configurations
-- **Progress tracking** throughout the entire setup process
-- **User prompts** for control over each installation step
 
 ## Details
 

@@ -31,7 +31,7 @@ discover_app_installers() {
     # Find all .sh files in the installers directory
     while IFS= read -r -d '' file; do
         local filename=$(basename "$file")
-        if [[ "$filename" != "main.sh" ]]; then  # Exclude main.sh if it got moved
+        if [[ "$filename" != "setup.sh" ]]; then  # Exclude setup.sh from installer discovery
             installers+=("$filename")
         fi
     done < <(find "$installers_dir" -name "*.sh" -type f -print0)

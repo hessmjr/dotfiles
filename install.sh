@@ -1,16 +1,12 @@
 #!/bin/bash
 
-# Dotfiles Install Script
-# This script handles both standalone installation and repo-based installation
-
 set -e
 
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 print_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
@@ -28,19 +24,16 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Check if we're running in a full repo or standalone
 is_standalone() {
     [[ ! -f "./src/main.sh" ]]
 }
 
-# Download and extract the full repository
 download_repo() {
     print_info "Downloading full dotfiles repository..."
 
     local temp_dir=$(mktemp -d)
     cd "$temp_dir" || exit 1
 
-    # Download and extract the repository, excluding unnecessary files
     if command -v curl >/dev/null 2>&1; then
         curl -fsSL https://github.com/yourusername/dotfiles/tarball/main | tar -xz --strip-components 1 --exclude='{*.md,.git*,LICENSE,old/*}'
     elif command -v wget >/dev/null 2>&1; then
@@ -50,7 +43,6 @@ download_repo() {
         exit 1
     fi
 
-    # Move to the extracted directory and run the install
     if [[ -f "./src/main.sh" ]]; then
         print_success "Repository downloaded successfully"
         ./src/main.sh "$@"
@@ -60,7 +52,6 @@ download_repo() {
     fi
 }
 
-# Main execution logic
 main() {
     if is_standalone; then
         print_info "Running in standalone mode - downloading full repository..."
@@ -72,5 +63,4 @@ main() {
     fi
 }
 
-# Run main function
 main "$@"

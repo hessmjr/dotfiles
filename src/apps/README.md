@@ -36,7 +36,7 @@ The apps setup script automatically installs the following applications directly
 
 ## How It Works
 
-The main setup script (`main.sh`) dynamically discovers all `.sh` files in the `installers/` directory and runs them automatically. This means:
+The main setup script (`setup.sh`) dynamically discovers all `.sh` files in the `installers/` directory and runs them automatically. This means:
 
 - **Add new apps**: Simply create a new `.sh` script in the `installers/` directory
 - **Remove apps**: Delete the corresponding `.sh` script
@@ -58,10 +58,10 @@ You can also run the apps setup independently:
 
 ```bash
 # Run the complete apps setup
-./src/apps/main.sh
+./src/apps/setup.sh
 
 # Check what applications are installed
-./src/apps/main.sh --check-only
+./src/apps/setup.sh --check-only
 ```
 
 ## Requirements
@@ -74,7 +74,7 @@ You can also run the apps setup independently:
 
 ```
 src/apps/
-├── main.sh              # Main orchestrator script
+├── setup.sh             # Main orchestrator script
 ├── README.md            # This documentation
 └── installers/          # Individual app installer scripts
     ├── vscode.sh        # Visual Studio Code

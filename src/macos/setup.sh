@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # macOS Setup Script
-# This script handles all macOS-specific system preferences and configurations
+# Modern orchestrator for all macOS preference setup scripts
 
 set -e
 
 # Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
 PURPLE='\033[0;35m'
 NC='\033[0m' # No Color
 
@@ -59,89 +59,39 @@ close_system_preferences() {
     osascript -e 'tell application "System Preferences" to quit' 2>/dev/null || true
 }
 
-# Dashboard preferences
-setup_dashboard() {
-    print_section "Dashboard"
+# Run all macOS preference scripts
+run_macos_setup() {
+    print_info "Running macOS preference setup scripts..."
 
-    # Disable Dashboard
-    defaults write com.apple.dashboard mcx-disabled -bool true
-    print_success "Disabled Dashboard"
+    # Get script directory
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-    # Restart Dock to apply changes
-    killall "Dock" &> /dev/null
-    print_success "Restarted Dock to apply Dashboard changes"
-}
+    # Close System Preferences first
+    close_system_preferences
 
-# Keyboard preferences
-setup_keyboard() {
-    print_section "Keyboard"
+    # Run individual preference scripts
+    print_info "Setting up Dashboard preferences..."
+    "$script_dir/dashboard.sh"
 
-    # Enable full keyboard access for all controls
-    defaults write -g AppleKeyboardUIMode -int 3
-    print_success "Enabled full keyboard access for all controls"
+    print_info "Setting up Keyboard preferences..."
+    "$script_dir/keyboard.sh"
 
-    # Disable press-and-hold in favor of key repeat
-    defaults write -g ApplePressAndHoldEnabled -bool false
-    print_success "Disabled press-and-hold in favor of key repeat"
+    print_info "Setting up Trackpad preferences..."
+    "$script_dir/trackpad.sh"
 
-    # Set delay until repeat to 10
-    defaults write -g 'InitialKeyRepeat_Level_Saved' -int 10
-    print_success "Set delay until repeat to 10"
+    print_info "Setting up UI & UX preferences..."
+    "$script_dir/ui_and_ux.sh"
 
-    # Set the repeat rate to fast
-    defaults write -g KeyRepeat -int 1
-    print_success "Set key repeat rate to fast"
+    print_info "Setting up System Updates preferences..."
+    "$script_dir/system_updates.sh"
 
-    # Disable smart quotes
-    defaults write -g NSAutomaticQuoteSubstitutionEnabled -bool false
-    print_success "Disabled smart quotes"
+    print_info "Setting up Developer Tools..."
+    "$script_dir/developer_tools.sh"
 
-    # Disable smart dashes
-    defaults write -g NSAutomaticDashSubstitutionEnabled -bool false
-    print_success "Disabled smart dashes"
-}
+    print_info "Setting up Homebrew Development Environment..."
+    "$script_dir/homebrew.sh"
 
-# Trackpad preferences
-setup_trackpad() {
-    print_section "Trackpad"
-
-    # Enable tap to click
-    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
-    defaults write com.apple.AppleMultitouchTrackpad Clicking -int 1
-    defaults write -g com.apple.mouse.tapBehavior -int 1
-    defaults -currentHost write -g com.apple.mouse.tapBehavior -int 1
-    print_success "Enabled tap to click"
-
-    # Enable two-finger right-click
-    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -bool true
-    defaults write com.apple.AppleMultitouchTrackpad TrackpadRightClick -int 1
-    defaults -currentHost write -g com.apple.trackpad.enableSecondaryClick -bool true
-    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadCornerSecondaryClick -int 0
-    defaults write com.apple.AppleMultitouchTrackpad TrackpadCornerSecondaryClick -int 0
-    defaults -currentHost write -g com.apple.trackpad.trackpadCornerClickBehavior -int 0
-    print_success "Enabled two-finger right-click"
-}
-
-# UI and UX preferences
-setup_ui_ux() {
-    print_section "UI & UX"
-
-    # Avoid creating .DS_Store files on network/USB volumes
-    defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
-    defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
-    print_success "Disabled .DS_Store creation on network/USB volumes"
-
-    # Make crash reports appear as notifications
-    defaults write com.apple.CrashReporter UseUNC 1
-    print_success "Set crash reports to appear as notifications"
-
-    # Disable shadow in screenshots
-    defaults write com.apple.screencapture disable-shadow -bool true
-    print_success "Disabled shadow in screenshots"
-
-    # Restart SystemUIServer to apply changes
-    killall "SystemUIServer" &> /dev/null
-    print_success "Restarted SystemUIServer to apply UI changes"
+    print_success "All macOS preference scripts completed successfully!"
 }
 
 # Check if macOS preferences need updating
@@ -192,14 +142,8 @@ main() {
         exit 1
     fi
 
-    # Close System Preferences
-    close_system_preferences
-
-    # Setup various macOS preferences
-    setup_dashboard
-    setup_keyboard
-    setup_trackpad
-    setup_ui_ux
+    # Run the modern modular setup
+    run_macos_setup
 
     print_success "macOS system preferences setup complete!"
     print_info "Some changes may require a restart to take full effect"

@@ -38,41 +38,71 @@ check_os() {
     print_success "Detected macOS"
 }
 
+# Check current dotfiles status and determine action needed
+check_dotfiles_status() {
+    print_info "Checking current dotfiles status..."
+
+    local needs_update=false
+
+    # Check if zsh setup script exists
+    if [[ ! -f "$SCRIPT_DIR/src/zsh/setup.sh" ]]; then
+        print_error "Zsh setup script not found at $SCRIPT_DIR/src/zsh/setup.sh"
+        return 1
+    fi
+
+    # Check if macOS setup script exists
+    if [[ ! -f "$SCRIPT_DIR/src/macos/main.sh" ]]; then
+        print_error "macOS setup script not found at $SCRIPT_DIR/src/macos/main.sh"
+        return 1
+    fi
+
+    # Run zsh setup script to check status
+    if "$SCRIPT_DIR/src/zsh/setup.sh" --check-only 2>/dev/null; then
+        print_info "Zsh configuration is up to date"
+    else
+        print_info "Zsh configuration updates needed"
+        needs_update=true
+    fi
+
+    # Run macOS setup script to check status
+    if "$SCRIPT_DIR/src/macos/setup.sh" --check-only 2>/dev/null; then
+        print_info "macOS preferences are up to date"
+    else
+        print_info "macOS preferences updates needed"
+        needs_update=true
+    fi
+
+    if [[ "$needs_update" == true ]]; then
+        print_info "Updates needed - proceeding with installation/update"
+        return 1
+    else
+        print_success "All dotfiles and macOS preferences are properly configured and up to date!"
+        print_info "No installation needed - everything is already set up correctly."
+        return 0
+    fi
+}
+
 # Create symbolic links for dotfiles
 create_symlinks() {
-    print_info "Creating symbolic links for dotfiles..."
+    print_info "Setting up dotfiles..."
 
-    local backup_dir="$HOME/.dotfiles_backup"
-    mkdir -p "$backup_dir"
+    # Run zsh setup script
+    if [[ -f "$SCRIPT_DIR/src/zsh/setup.sh" ]]; then
+        print_info "Running zsh configuration setup..."
+        "$SCRIPT_DIR/src/zsh/setup.sh"
+    else
+        print_error "Zsh setup script not found"
+        exit 1
+    fi
 
-    # Zsh configuration files
-    local zsh_files=(
-        "aliases.zsh"
-        "exports.zsh"
-        "functions.zsh"
-        "prompt.zsh"
-    )
-
-    for file in "${zsh_files[@]}"; do
-        local source="$SCRIPT_DIR/src/zsh/$file"
-        local target="$HOME/.$file"
-
-        if [[ -f "$source" ]]; then
-            # Backup existing file if it exists
-            if [[ -f "$target" ]]; then
-                if [[ ! -L "$target" ]]; then
-                    print_warning "Backing up existing $target"
-                    mv "$target" "$backup_dir/"
-                fi
-            fi
-
-            # Create symbolic link
-            ln -sf "$source" "$target"
-            print_success "Linked $target → $source"
-        else
-            print_warning "Source file $source not found, skipping"
-        fi
-    done
+    # Run macOS setup script
+    if [[ -f "$SCRIPT_DIR/src/macos/main.sh" ]]; then
+        print_info "Running macOS system preferences setup..."
+        "$SCRIPT_DIR/src/macos/main.sh"
+    else
+        print_error "macOS setup script not found"
+        exit 1
+    fi
 }
 
 # Main function
@@ -85,7 +115,13 @@ main() {
     # Check OS
     check_os
 
-    # Create symbolic links
+    # Check current dotfiles status
+    if check_dotfiles_status; then
+        print_info "Setup check complete - no action needed."
+        exit 0
+    fi
+
+    # Create symbolic links if updates needed
     create_symlinks
 
     print_success "Dotfiles setup complete!"

@@ -20,9 +20,15 @@ curl -fsSL https://raw.githubusercontent.com/hessmjr/dotfiles/main/install.sh | 
 wget -O - https://raw.githubusercontent.com/hessmjr/dotfiles/main/install.sh | bash
 ```
 
+**Files present**
+```bash
+./install.sh
+```
+
 The install script will:
 - Verify you're running macOS
-- Create symbolic links for all configuration files
+- Check if dotfiles are already properly configured
+- Create symbolic links for all configuration files (if needed)
 - Back up any existing dotfiles to `~/.dotfiles_backup/`
 - Set up your zsh configuration
 
@@ -31,6 +37,12 @@ The install script will:
 After installation, you may need to:
 - Restart your terminal
 - Or run `source ~/.zshrc` to reload the configuration
+
+**Features:**
+- **Automatic detection** of existing configurations
+- **Timestamped backups** (e.g., `~/.dotfiles_backup/20241201_143022/`)
+- **Preserves customizations** in organized backup directories
+- **Easy restoration** of previous configurations
 
 ## Details
 

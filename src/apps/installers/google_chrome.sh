@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Google Chrome Setup Script
-# Downloads and installs Google Chrome browser
 
 set -e
 
@@ -9,16 +7,14 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
-# Check if Google Chrome is already installed
 is_chrome_installed() {
     if [[ -d "/Applications/Google Chrome.app" ]]; then
-        return 0  # App is installed
+        return 0
     else
-        return 1  # App is not installed
+        return 1
     fi
 }
 
-# Download and install Google Chrome
 install_chrome() {
     print_section "Google Chrome"
 
@@ -64,10 +60,8 @@ install_chrome() {
     cleanup_temp_dir "$temp_dir"
 }
 
-# Main function
 main() {
     install_chrome
 }
 
-# Run main function
 main "$@"

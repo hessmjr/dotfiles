@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Standard Notes Setup Script
-# Downloads and installs Standard Notes app
 
 set -e
 
@@ -9,16 +7,14 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
-# Check if Standard Notes is already installed
 is_standard_notes_installed() {
     if [[ -d "/Applications/Standard Notes.app" ]]; then
-        return 0  # App is installed
+        return 0
     else
-        return 1  # App is not installed
+        return 1
     fi
 }
 
-# Download and install Standard Notes
 install_standard_notes() {
     print_section "Standard Notes"
 
@@ -64,10 +60,8 @@ install_standard_notes() {
     cleanup_temp_dir "$temp_dir"
 }
 
-# Main function
 main() {
     install_standard_notes
 }
 
-# Run main function
 main "$@"

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Docker Setup Script
-# Downloads and installs Docker Desktop directly from source
 
 set -e
 
@@ -9,7 +7,6 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
-# Download and install Docker
 install_docker() {
     local app_path="/Applications/Docker.app"
     local details="Will download and install Docker Desktop from the official source."
@@ -56,10 +53,8 @@ install_docker() {
     cleanup_temp_dir "$temp_dir"
 }
 
-# Main function
 main() {
     install_docker
 }
 
-# Run main function
 main "$@"

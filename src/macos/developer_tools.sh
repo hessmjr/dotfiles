@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# macOS Developer Tools Setup Script
-# Ensures Xcode Command Line Tools are installed and up to date
 
 set -e
 
@@ -108,7 +106,6 @@ accept_xcode_license() {
     fi
 }
 
-# Main developer tools setup function
 setup_developer_tools() {
     print_section "Developer Tools Setup"
 
@@ -152,10 +149,8 @@ setup_developer_tools() {
     fi
 }
 
-# Main function
 main() {
     setup_developer_tools
 }
 
-# Run main function
 main "$@"

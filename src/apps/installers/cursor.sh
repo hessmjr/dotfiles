@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Cursor Setup Script
-# Downloads and installs Cursor directly from source
 
 set -e
 
@@ -9,7 +7,6 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
-# Download and install Cursor
 install_cursor() {
     local app_path="/Applications/Cursor.app"
     local details="Will download and install Cursor from the official source."
@@ -56,10 +53,8 @@ install_cursor() {
     cleanup_temp_dir "$temp_dir"
 }
 
-# Main function
 main() {
     install_cursor
 }
 
-# Run main function
 main "$@"

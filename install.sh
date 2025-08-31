@@ -40,7 +40,6 @@ main() {
         download_repo
     else
         print_info "Running from repository - executing main script..."
-        # We're in the repo, just run the main script
         ./src/main.sh
     fi
 }

@@ -1,22 +1,17 @@
 #!/bin/bash
 
-# macOS Setup Script
-# Modern orchestrator for all macOS preference setup scripts
-
 set -e
 
 # Source shared utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
-# Check if running on macOS
 check_macos() {
     if [[ "$OSTYPE" != "darwin"* ]]; then
         print_error "This script is intended for macOS only"
         exit 1
     fi
 
-    # Check minimum macOS version
     local os_version=$(sw_vers -productVersion)
     local min_version="10.10"
 
@@ -28,23 +23,18 @@ check_macos() {
     print_success "Detected macOS $os_version"
 }
 
-# Close System Preferences to avoid conflicts
 close_system_preferences() {
     print_info "Closing System Preferences to avoid conflicts..."
     osascript -e 'tell application "System Preferences" to quit' 2>/dev/null || true
 }
 
-# Run all macOS preference scripts
 run_macos_setup() {
     print_info "Running macOS preference setup scripts..."
 
-    # Get script directory
     local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-    # Close System Preferences first
     close_system_preferences
 
-    # Run individual preference scripts
     print_info "Setting up Dashboard preferences..."
     "$script_dir/dashboard.sh"
 
@@ -69,20 +59,14 @@ run_macos_setup() {
     print_success "All macOS preference scripts completed successfully!"
 }
 
-# Check if macOS preferences need updating
 check_macos_status() {
     print_info "Checking current macOS preferences status..."
-
-    # For now, we'll assume updates are always needed since these are system defaults
-    # In the future, we could add more sophisticated checking
     return 1
 }
 
-# Main macOS setup function
 main() {
     local check_only=false
 
-    # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
             --check-only)
@@ -99,10 +83,8 @@ main() {
 
     print_info "Starting macOS system preferences setup..."
 
-    # Check macOS compatibility
     check_macos
 
-    # Check if updates are needed
     if check_macos_status; then
         if [[ "$check_only" == true ]]; then
             exit 0
@@ -112,17 +94,14 @@ main() {
         fi
     fi
 
-    # If check-only mode, exit with error code
     if [[ "$check_only" == true ]]; then
         exit 1
     fi
 
-    # Run the modern modular setup
     run_macos_setup
 
     print_success "macOS system preferences setup complete!"
     print_info "Some changes may require a restart to take full effect"
 }
 
-# Run main function
 main "$@"

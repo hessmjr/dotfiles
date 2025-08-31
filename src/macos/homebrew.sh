@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# macOS Homebrew Setup Script
-# Installs Homebrew and essential development packages
 
 set -e
 
@@ -133,7 +131,6 @@ install_development_packages() {
     return ${#failed_packages[@]}
 }
 
-# Configure Homebrew
 configure_homebrew() {
     print_section "Homebrew Configuration"
 
@@ -194,7 +191,6 @@ verify_packages() {
     fi
 }
 
-# Main Homebrew setup function
 setup_homebrew() {
     print_section "Homebrew Development Environment Setup"
 
@@ -241,10 +237,8 @@ setup_homebrew() {
     print_info "To add Homebrew to your shell profile, run: echo 'eval \"\$(/opt/homebrew/bin/brew shellenv)\"' >> ~/.zshrc"
 }
 
-# Main function
 main() {
     setup_homebrew
 }
 
-# Run main function
 main "$@"

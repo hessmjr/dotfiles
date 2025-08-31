@@ -1,15 +1,11 @@
 #!/bin/bash
 
-# Dotfiles Main Setup Script
-# Orchestrates all dotfiles setup scripts
-
 set -e
 
 # Source shared utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
-# Check if running on macOS
 check_os() {
     if [[ "$OSTYPE" != "darwin"* ]]; then
         print_error "This script is intended for macOS only"
@@ -67,7 +63,6 @@ check_status() {
 execute_setup() {
     print_info "Setting up dotfiles..."
 
-    # Zsh Configuration Setup
     if [[ -f "$SCRIPT_DIR/src/zsh/setup.sh" ]]; then
         print_section "Zsh Configuration Setup"
         print_info "This will configure your zsh shell with custom aliases, functions, and prompt settings."
@@ -83,7 +78,6 @@ execute_setup() {
         exit 1
     fi
 
-    # macOS System Preferences Setup
     if [[ -f "$SCRIPT_DIR/src/macos/setup.sh" ]]; then
         print_section "macOS System Preferences Setup"
         print_info "This will configure various macOS system preferences including keyboard, trackpad, UI settings, and developer tools."
@@ -99,7 +93,6 @@ execute_setup() {
         exit 1
     fi
 
-    # Applications Setup
     if [[ -f "$SCRIPT_DIR/src/apps/setup.sh" ]]; then
         print_section "Applications Setup"
         print_info "This will install various applications including development tools, browsers, and utilities."

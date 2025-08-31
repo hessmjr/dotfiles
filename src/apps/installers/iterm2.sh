@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# iTerm2 Setup Script
-# Downloads and installs iTerm2 directly from source
 
 set -e
 
@@ -9,7 +7,6 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
-# Download and install iTerm2
 install_iterm2() {
     local app_path="/Applications/iTerm.app"
     local details="Will download and install iTerm2 from the official source."
@@ -51,10 +48,8 @@ install_iterm2() {
     cleanup_temp_dir "$temp_dir"
 }
 
-# Main function
 main() {
     install_iterm2
 }
 
-# Run main function
 main "$@"

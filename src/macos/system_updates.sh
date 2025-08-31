@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# macOS System Updates Setup Script
-# Configures system update preferences and auto-update behavior
 
 set -e
 
@@ -9,7 +7,6 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
-# Configure system update preferences
 configure_system_updates() {
     print_section "System Updates Configuration"
 
@@ -71,10 +68,8 @@ configure_system_updates() {
     print_info "To manually check for updates, use: Software Update in System Preferences"
 }
 
-# Main function
 main() {
     configure_system_updates
 }
 
-# Run main function
 main "$@"

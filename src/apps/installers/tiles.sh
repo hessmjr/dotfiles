@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Tiles Setup Script
-# Downloads and installs Tiles window manager
 
 set -e
 
@@ -9,16 +7,14 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
-# Check if Tiles is already installed
 is_tiles_installed() {
     if [[ -d "/Applications/Tiles.app" ]]; then
-        return 0  # App is installed
+        return 0
     else
-        return 1  # App is not installed
+        return 1
     fi
 }
 
-# Download and install Tiles
 install_tiles() {
     print_section "Tiles"
 
@@ -60,10 +56,8 @@ install_tiles() {
     cleanup_temp_dir "$temp_dir"
 }
 
-# Main function
 main() {
     install_tiles
 }
 
-# Run main function
 main "$@"

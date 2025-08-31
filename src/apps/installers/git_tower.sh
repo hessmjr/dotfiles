@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Git Tower Setup Script
-# Downloads and installs Git Tower
 
 set -e
 
@@ -9,16 +7,14 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
-# Check if Git Tower is already installed
 is_git_tower_installed() {
     if [[ -d "/Applications/Tower.app" ]]; then
-        return 0  # App is installed
+        return 0
     else
-        return 1  # App is not installed
+        return 1
     fi
 }
 
-# Download and install Git Tower
 install_git_tower() {
     print_section "Git Tower"
 
@@ -64,10 +60,8 @@ install_git_tower() {
     cleanup_temp_dir "$temp_dir"
 }
 
-# Main function
 main() {
     install_git_tower
 }
 
-# Run main function
 main "$@"

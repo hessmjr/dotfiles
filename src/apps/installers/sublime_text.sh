@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Sublime Text Setup Script
-# Downloads and installs Sublime Text editor
 
 set -e
 
@@ -9,16 +7,14 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
-# Check if Sublime Text is already installed
 is_sublime_installed() {
     if [[ -d "/Applications/Sublime Text.app" ]]; then
-        return 0  # App is installed
+        return 0
     else
-        return 1  # App is not installed
+        return 1
     fi
 }
 
-# Download and install Sublime Text
 install_sublime() {
     print_section "Sublime Text"
 
@@ -60,10 +56,8 @@ install_sublime() {
     cleanup_temp_dir "$temp_dir"
 }
 
-# Main function
 main() {
     install_sublime
 }
 
-# Run main function
 main "$@"

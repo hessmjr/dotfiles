@@ -67,25 +67,49 @@ check_status() {
 execute_setup() {
     print_info "Setting up dotfiles..."
 
+    # Zsh Configuration Setup
     if [[ -f "$SCRIPT_DIR/src/zsh/setup.sh" ]]; then
-        print_info "Running zsh configuration setup..."
-        "$SCRIPT_DIR/src/zsh/setup.sh"
+        print_section "Zsh Configuration Setup"
+        print_info "This will configure your zsh shell with custom aliases, functions, and prompt settings."
+
+        if ask_for_confirmation "Would you like to set up zsh configuration?" "y"; then
+            print_info "Running zsh configuration setup..."
+            "$SCRIPT_DIR/src/zsh/setup.sh"
+        else
+            print_info "Skipping zsh configuration setup"
+        fi
     else
         print_error "Zsh setup script not found"
         exit 1
     fi
 
+    # macOS System Preferences Setup
     if [[ -f "$SCRIPT_DIR/src/macos/setup.sh" ]]; then
-        print_info "Running macOS system preferences setup..."
-        "$SCRIPT_DIR/src/macos/setup.sh"
+        print_section "macOS System Preferences Setup"
+        print_info "This will configure various macOS system preferences including keyboard, trackpad, UI settings, and developer tools."
+
+        if ask_for_confirmation "Would you like to set up macOS system preferences?" "y"; then
+            print_info "Running macOS system preferences setup..."
+            "$SCRIPT_DIR/src/macos/setup.sh"
+        else
+            print_info "Skipping macOS system preferences setup"
+        fi
     else
         print_error "macOS setup script not found"
         exit 1
     fi
 
+    # Applications Setup
     if [[ -f "$SCRIPT_DIR/src/apps/setup.sh" ]]; then
-        print_info "Running applications setup..."
-        "$SCRIPT_DIR/src/apps/setup.sh"
+        print_section "Applications Setup"
+        print_info "This will install various applications including development tools, browsers, and utilities."
+
+        if ask_for_confirmation "Would you like to set up applications?" "y"; then
+            print_info "Running applications setup..."
+            "$SCRIPT_DIR/src/apps/setup.sh"
+        else
+            print_info "Skipping applications setup"
+        fi
     else
         print_error "Apps setup script not found"
         exit 1
@@ -94,6 +118,13 @@ execute_setup() {
 
 main() {
     print_info "Starting dotfiles setup..."
+    print_section "Dotfiles Setup Overview"
+    print_info "This setup will configure three main areas:"
+    print_info "1. Zsh Configuration - Shell aliases, functions, and prompt"
+    print_info "2. macOS Preferences - System settings, keyboard, trackpad, UI"
+    print_info "3. Applications - Development tools, browsers, utilities"
+    print_info ""
+    print_info "You will be prompted for each major step. You can choose to complete or skip each section."
 
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -106,8 +137,14 @@ main() {
 
     execute_setup
 
+    print_section "Setup Summary"
     print_success "Dotfiles setup complete!"
     print_info "You may need to restart your terminal or run 'source ~/.zshrc' for changes to take effect"
+    print_info ""
+    print_info "Next steps:"
+    print_info "- Restart your terminal to see zsh changes"
+    print_info "- Check System Preferences for macOS changes"
+    print_info "- Launch newly installed applications"
 }
 
 main "$@"

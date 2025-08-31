@@ -27,7 +27,7 @@ download_repo() {
 
     if [[ -f "./src/main.sh" ]]; then
         print_success "Repository downloaded successfully"
-        ./src/main.sh "$@"
+        ./src/main.sh
     else
         print_error "Failed to download repository properly"
         exit 1
@@ -37,11 +37,11 @@ download_repo() {
 main() {
     if is_standalone; then
         print_info "Running in standalone mode - downloading full repository..."
-        download_repo "$@"
+        download_repo
     else
         print_info "Running from repository - executing main script..."
         # We're in the repo, just run the main script
-        ./src/main.sh "$@"
+        ./src/main.sh
     fi
 }
 

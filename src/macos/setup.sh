@@ -61,7 +61,95 @@ run_macos_setup() {
 
 check_macos_status() {
     print_info "Checking current macOS preferences status..."
-    return 1
+
+    local needs_update=false
+    local checked_count=0
+    local total_checks=0
+
+    # Check Dashboard preferences
+    ((total_checks++))
+    local dashboard_disabled=$(defaults read com.apple.dashboard mcx-disabled 2>/dev/null || echo "not_set")
+    if [[ "$dashboard_disabled" == "1" ]]; then
+        print_success "Dashboard is already disabled"
+    else
+        print_info "Dashboard needs to be disabled"
+        needs_update=true
+    fi
+    ((checked_count++))
+
+    # Check Keyboard preferences
+    ((total_checks++))
+    local keyboard_ui_mode=$(defaults read -g AppleKeyboardUIMode 2>/dev/null || echo "not_set")
+    if [[ "$keyboard_ui_mode" == "3" ]]; then
+        print_success "Full keyboard access is already enabled"
+    else
+        print_info "Full keyboard access needs to be enabled"
+        needs_update=true
+    fi
+    ((checked_count++))
+
+    # Check Trackpad preferences
+    ((total_checks++))
+    local tap_click=$(defaults read com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking 2>/dev/null || echo "not_set")
+    if [[ "$tap_click" == "1" ]]; then
+        print_success "Tap to click is already enabled"
+    else
+        print_info "Tap to click needs to be enabled"
+        needs_update=true
+    fi
+    ((checked_count++))
+
+    # Check UI/UX preferences
+    ((total_checks++))
+    local ds_store_network=$(defaults read com.apple.desktopservices DSDontWriteNetworkStores 2>/dev/null || echo "not_set")
+    if [[ "$ds_store_network" == "1" ]]; then
+        print_success "Network .DS_Store creation is already disabled"
+    else
+        print_info "Network .DS_Store creation needs to be disabled"
+        needs_update=true
+    fi
+    ((checked_count++))
+
+    # Check System Updates preferences
+    ((total_checks++))
+    local auto_check=$(defaults read /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled 2>/dev/null || echo "not_set")
+    if [[ "$auto_check" == "0" ]]; then
+        print_success "Automatic system updates are already disabled"
+    else
+        print_info "Automatic system updates need to be disabled"
+        needs_update=true
+    fi
+    ((checked_count++))
+
+    # Check Developer Tools
+    ((total_checks++))
+    if xcode-select -p &> /dev/null; then
+        print_success "Xcode Command Line Tools are already installed"
+    else
+        print_info "Xcode Command Line Tools need to be installed"
+        needs_update=true
+    fi
+    ((checked_count++))
+
+    # Check Homebrew
+    ((total_checks++))
+    if command -v brew &> /dev/null; then
+        print_success "Homebrew is already installed"
+    else
+        print_info "Homebrew needs to be installed"
+        needs_update=true
+    fi
+    ((checked_count++))
+
+    print_info "macOS preferences status: $checked_count/$total_checks checks completed"
+
+    if [[ "$needs_update" == true ]]; then
+        print_info "Some macOS preferences need to be updated"
+        return 1
+    else
+        print_success "All macOS preferences are already configured correctly"
+        return 0
+    fi
 }
 
 main() {

@@ -20,7 +20,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 - **`aliases.zsh`**: Custom command aliases for common tasks
 - **`exports.zsh`**: Environment variables and exports
 - **`functions.zsh`**: Custom shell functions
-- **`prompt.zsh`**: Custom zsh prompt configuration
+- **`prompt.zsh`**: Oh My Zsh theme customizations and overrides
 
 ## Installation
 
@@ -36,7 +36,7 @@ These files are automatically installed when you run the main install script. Th
 **Important**: After the files are installed, you need to manually add the following lines to your `~/.zshrc` file to source the custom configurations:
 
 ```bash
-# Load custom configurations
+# Load custom configurations (add these AFTER Oh My Zsh loads)
 source ~/.aliases.zsh
 source ~/.exports.zsh
 source ~/.functions.zsh
@@ -52,7 +52,9 @@ source ~/.prompt.zsh
    code ~/.zshrc
    ```
 
-2. **Add the source lines at the end of the file**
+2. **Add the source lines AFTER the Oh My Zsh configuration section**
+   - Look for the line that says `source $ZSH/oh-my-zsh.sh`
+   - Add the custom source lines after that line
 
 3. **Save and reload:**
    ```bash
@@ -65,13 +67,17 @@ After manual setup, you can:
 - Restart your terminal for changes to take effect
 - Or run `source ~/.zshrc` to reload all configurations
 - Customize any of these files to match your preferences
+- Change Oh My Zsh themes by editing `~/.prompt.zsh`
 
 ## Customization
 
-Feel free to modify these files to add your own aliases, functions, and configurations. The install script will preserve your changes when you update the repository.
+- **Aliases & Functions**: Modify `aliases.zsh` and `functions.zsh` to add your own shortcuts
+- **Environment Variables**: Add custom exports in `exports.zsh`
+- **Prompt Themes**: Change Oh My Zsh themes by uncommenting and modifying the `ZSH_THEME` line in `prompt.zsh`
 
 ## Troubleshooting
 
-- **Files not loading?** Check that the source lines are correctly added to `~/.zshrc`
-- **Oh My Zsh conflicts?** Ensure the source lines are added after Oh My Zsh loads
+- **Files not loading?** Check that the source lines are correctly added to `~/.zshrc` AFTER Oh My Zsh loads
+- **Oh My Zsh conflicts?** Ensure the source lines are added after the `source $ZSH/oh-my-zsh.sh` line
 - **Permission issues?** Verify the symbolic links are created correctly
+- **Prompt not working?** Make sure Oh My Zsh is installed and the theme is set in `prompt.zsh`

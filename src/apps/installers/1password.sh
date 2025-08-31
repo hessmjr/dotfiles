@@ -14,6 +14,16 @@ is_1password_installed() {
     fi
 }
 
+check_1password_status() {
+    if is_1password_installed; then
+        print_success "1Password is already installed"
+        return 0
+    else
+        print_info "1Password is not installed"
+        return 1
+    fi
+}
+
 install_1password() {
     print_section "1Password"
 
@@ -46,6 +56,28 @@ install_1password() {
 }
 
 main() {
+    local check_only=false
+
+    # Parse command line arguments
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --check-only)
+                check_only=true
+                shift
+                ;;
+            *)
+                print_warning "Unknown option: $1"
+                print_info "Usage: $0 [--check-only]"
+                exit 1
+                ;;
+        esac
+    done
+
+    if [[ "$check_only" == true ]]; then
+        check_1password_status
+        exit $?
+    fi
+
     install_1password
 }
 

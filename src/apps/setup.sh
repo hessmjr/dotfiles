@@ -81,7 +81,58 @@ run_apps_setup() {
 
 check_apps_status() {
     print_info "Checking current applications status..."
-    return 1
+
+    local installers_dir="$SCRIPT_DIR/installers"
+    local needs_update=false
+    local checked_count=0
+    local total_count=0
+
+    if [[ ! -d "$installers_dir" ]]; then
+        print_error "Installers directory not found: $installers_dir"
+        return 1
+    fi
+
+    # Get list of available installers
+    local installers=($(discover_app_installers))
+    total_count=${#installers[@]}
+
+    if [[ $total_count -eq 0 ]]; then
+        print_warning "No app installers found"
+        return 1
+    fi
+
+    print_info "Checking ${total_count} available applications..."
+
+    # Check each application using its own installer script
+    for installer in "${installers[@]}"; do
+        local installer_path="$SCRIPT_DIR/installers/$installer"
+
+        if [[ -f "$installer_path" ]]; then
+            print_info "Checking $installer..."
+
+            # Call the installer script with --check-only flag
+            if "$installer_path" --check-only 2>/dev/null; then
+                print_success "$installer is already properly configured"
+                ((checked_count++))
+            else
+                print_info "$installer needs to be installed/updated"
+                needs_update=true
+                ((checked_count++))
+            fi
+        else
+            print_warning "Installer script not found: $installer_path"
+        fi
+    done
+
+    print_info "Applications status: $checked_count/$total_count checks completed"
+
+    if [[ "$needs_update" == true ]]; then
+        print_info "Some applications need to be installed or updated"
+        return 1
+    else
+        print_success "All available applications are already properly configured"
+        return 0
+    fi
 }
 
 main() {

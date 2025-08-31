@@ -7,9 +7,27 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
+is_docker_installed() {
+    if [[ -d "/Applications/Docker.app" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+check_docker_status() {
+    if is_docker_installed; then
+        print_success "Docker Desktop is already installed"
+        return 0
+    else
+        print_info "Docker Desktop is not installed"
+        return 1
+    fi
+}
+
 install_docker() {
     local app_path="/Applications/Docker.app"
-    local details="Will download and install Docker Desktop from the official source."
+    local details="Will download and install Docker Desktop from Docker's official source."
 
     if ! prompt_for_app_installation "Docker Desktop" "$app_path" "$details"; then
         return 0
@@ -17,29 +35,22 @@ install_docker() {
 
     print_info "Downloading Docker Desktop..."
 
-    # Create temporary directory
     local temp_dir=$(create_temp_dir)
     cd "$temp_dir"
 
-    # Download Docker Desktop for macOS
     local download_url="https://desktop.docker.com/mac/main/amd64/Docker.dmg"
     local filename="Docker.dmg"
 
     if download_file "$download_url" "$filename"; then
-        # Mount the DMG
-        local mount_point=$(mount_dmg "$filename" "Docker")
-        if [[ -n "$mount_point" ]]; then
-            # Copy to Applications
-            if install_app_to_applications "$mount_point/Docker.app" "Docker"; then
-                print_success "Docker installation completed"
+        if mount_dmg "$filename"; then
+            if install_app_to_applications "Docker.app" "Docker Desktop"; then
+                print_success "Docker Desktop installation completed"
             else
-                unmount_dmg "$mount_point"
+                unmount_dmg
                 cleanup_temp_dir "$temp_dir"
                 return 1
             fi
-
-            # Unmount the DMG
-            unmount_dmg "$mount_point"
+            unmount_dmg
         else
             cleanup_temp_dir "$temp_dir"
             return 1
@@ -49,11 +60,32 @@ install_docker() {
         return 1
     fi
 
-    # Clean up
     cleanup_temp_dir "$temp_dir"
 }
 
 main() {
+    local check_only=false
+
+    # Parse command line arguments
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --check-only)
+                check_only=true
+                shift
+                ;;
+            *)
+                print_warning "Unknown option: $1"
+                print_info "Usage: $0 [--check-only]"
+                exit 1
+                ;;
+        esac
+    done
+
+    if [[ "$check_only" == true ]]; then
+        check_docker_status
+        exit $?
+    fi
+
     install_docker
 }
 

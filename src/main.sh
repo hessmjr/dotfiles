@@ -19,31 +19,31 @@ check_status() {
 
     local needs_update=false
 
-    if [[ ! -f "$SCRIPT_DIR/src/zsh/setup.sh" ]]; then
-        print_error "Zsh setup script not found at $SCRIPT_DIR/src/zsh/setup.sh"
+    if [[ ! -f "$SCRIPT_DIR/zsh/setup.sh" ]]; then
+        print_error "Zsh setup script not found at $SCRIPT_DIR/zsh/setup.sh"
         return 1
     fi
 
-    if [[ ! -f "$SCRIPT_DIR/src/macos/setup.sh" ]]; then
-        print_error "macOS setup script not found at $SCRIPT_DIR/src/macos/setup.sh"
+    if [[ ! -f "$SCRIPT_DIR/macos/setup.sh" ]]; then
+        print_error "macOS setup script not found at $SCRIPT_DIR/macos/setup.sh"
         return 1
     fi
 
-    if "$SCRIPT_DIR/src/zsh/setup.sh" --check-only 2>/dev/null; then
+    if "$SCRIPT_DIR/zsh/setup.sh" --check-only 2>/dev/null; then
         print_info "Zsh configuration is up to date"
     else
         print_info "Zsh configuration updates needed"
         needs_update=true
     fi
 
-    if "$SCRIPT_DIR/src/macos/setup.sh" --check-only 2>/dev/null; then
+    if "$SCRIPT_DIR/macos/setup.sh" --check-only 2>/dev/null; then
         print_info "macOS preferences are up to date"
     else
         print_info "macOS preferences updates needed"
         needs_update=true
     fi
 
-    if "$SCRIPT_DIR/src/apps/setup.sh" --check-only 2>/dev/null; then
+    if "$SCRIPT_DIR/apps/setup.sh" --check-only 2>/dev/null; then
         print_info "Applications are up to date"
     else
         print_info "Applications updates needed"
@@ -63,13 +63,13 @@ check_status() {
 execute_setup() {
     print_info "Setting up dotfiles..."
 
-    if [[ -f "$SCRIPT_DIR/src/zsh/setup.sh" ]]; then
+    if [[ -f "$SCRIPT_DIR/zsh/setup.sh" ]]; then
         print_section "Zsh Configuration Setup"
         print_info "This will configure your zsh shell with custom aliases, functions, and prompt settings."
 
         if ask_for_confirmation "Would you like to set up zsh configuration?" "y"; then
             print_info "Running zsh configuration setup..."
-            "$SCRIPT_DIR/src/zsh/setup.sh"
+            "$SCRIPT_DIR/zsh/setup.sh"
         else
             print_info "Skipping zsh configuration setup"
         fi
@@ -78,13 +78,13 @@ execute_setup() {
         exit 1
     fi
 
-    if [[ -f "$SCRIPT_DIR/src/macos/setup.sh" ]]; then
+    if [[ -f "$SCRIPT_DIR/macos/setup.sh" ]]; then
         print_section "macOS System Preferences Setup"
         print_info "This will configure various macOS system preferences including keyboard, trackpad, UI settings, and developer tools."
 
         if ask_for_confirmation "Would you like to set up macOS system preferences?" "y"; then
             print_info "Running macOS system preferences setup..."
-            "$SCRIPT_DIR/src/macos/setup.sh"
+            "$SCRIPT_DIR/macos/setup.sh"
         else
             print_info "Skipping macOS system preferences setup"
         fi
@@ -93,13 +93,13 @@ execute_setup() {
         exit 1
     fi
 
-    if [[ -f "$SCRIPT_DIR/src/apps/setup.sh" ]]; then
+    if [[ -f "$SCRIPT_DIR/apps/setup.sh" ]]; then
         print_section "Applications Setup"
         print_info "This will install various applications including development tools, browsers, and utilities."
 
         if ask_for_confirmation "Would you like to set up applications?" "y"; then
             print_info "Running applications setup..."
-            "$SCRIPT_DIR/src/apps/setup.sh"
+            "$SCRIPT_DIR/apps/setup.sh"
         else
             print_info "Skipping applications setup"
         fi

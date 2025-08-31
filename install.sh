@@ -17,9 +17,9 @@ download_repo() {
     cd "$temp_dir" || exit 1
 
     if command -v curl >/dev/null 2>&1; then
-        curl -fsSL https://github.com/yourusername/dotfiles/tarball/main | tar -xz --strip-components 1 --exclude='{*.md,.git*,LICENSE,old/*}'
+        curl -fsSL https://github.com/hessmjr/dotfiles/tarball/main | tar -xz --strip-components 1 --exclude='{*.md,.git*,LICENSE,old/*}'
     elif command -v wget >/dev/null 2>&1; then
-        wget -O - https://github.com/yourusername/dotfiles/tarball/main | tar -xz --strip-components 1 --exclude='{*.md,.git*,LICENSE,old/*}'
+        wget -O - https://github.com/hessmjr/dotfiles/tarball/main | tar -xz --strip-components 1 --exclude='{*.md,.git*,LICENSE,old/*}'
     else
         print_error "Neither curl nor wget found. Please install one and try again."
         exit 1

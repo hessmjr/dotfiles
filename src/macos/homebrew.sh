@@ -96,7 +96,6 @@ install_development_packages() {
     # Define the packages to install
     local packages=(
         "git"              # Version control
-        "asdf"             # Version manager for multiple languages
         "awscli"           # AWS command line interface
         "kubectx"          # Kubernetes context switcher
         "kubernetes-cli"   # Kubernetes command line tools
@@ -168,7 +167,7 @@ verify_packages() {
 
     print_info "Verifying package installations..."
 
-    local packages=("git" "asdf" "aws" "kubectx" "kubectl" "sops" "terraform")
+    local packages=("git" "aws" "kubectx" "kubectl" "sops" "terraform")
     local missing_packages=()
 
     for package in "${packages[@]}"; do

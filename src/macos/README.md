@@ -52,7 +52,6 @@ The macOS setup script automatically configures various system preferences to op
 - Installs and configures Homebrew package manager
 - Installs essential development packages:
   - **git** - Version control system
-  - **asdf** - Version manager for multiple languages
   - **awscli** - AWS command line interface
   - **kubectx** - Kubernetes context switcher
   - **kubernetes-cli** - Kubernetes command line tools
@@ -61,6 +60,12 @@ The macOS setup script automatically configures various system preferences to op
 - Updates and upgrades existing packages
 - Configures Homebrew analytics and completions
 - Verifies all package installations
+
+### asdf Version Manager
+- Installs asdf via Homebrew
+- Adds common plugins (nodejs, python, ruby, golang)
+- Prompts to install latest versions of Node.js, Python, and Ruby
+- Configures shell integration for immediate use
 
 ### Favorites Folder
 - Creates a `favorites` folder in your home directory

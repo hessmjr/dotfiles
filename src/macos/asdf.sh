@@ -100,6 +100,12 @@ install_asdf() {
         return 1
     fi
 
+    # Source asdf shell integration to make it available in current session
+    if [[ -f "$(brew --prefix asdf)/libexec/asdf.sh" ]]; then
+        source "$(brew --prefix asdf)/libexec/asdf.sh"
+        print_info "Sourced asdf shell integration"
+    fi
+
     # Verify installation
     if is_asdf_installed; then
         local version=$(asdf --version 2>/dev/null | head -n1 | cut -d' ' -f2 || echo "unknown")

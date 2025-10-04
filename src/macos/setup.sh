@@ -56,6 +56,9 @@ run_macos_setup() {
     print_info "Setting up Homebrew Development Environment..."
     "$script_dir/homebrew.sh"
 
+    print_info "Setting up asdf Version Manager..."
+    "$script_dir/asdf.sh"
+
     print_success "All macOS preference scripts completed successfully!"
 }
 
@@ -137,6 +140,16 @@ check_macos_status() {
         print_success "Homebrew is already installed"
     else
         print_info "Homebrew needs to be installed"
+        needs_update=true
+    fi
+    ((checked_count++))
+
+    # Check asdf
+    ((total_checks++))
+    if command -v asdf &> /dev/null; then
+        print_success "asdf is already installed"
+    else
+        print_info "asdf needs to be installed"
         needs_update=true
     fi
     ((checked_count++))

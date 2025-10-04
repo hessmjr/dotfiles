@@ -5,12 +5,12 @@ export EDITOR="nano"
 # Turn off homebrew analytics
 export HOMEBREW_NO_ANALYTICS=1
 
-# asdf configuration
-if [[ -f "$HOME/.asdf/asdf.sh" ]]; then
-    . "$HOME/.asdf/asdf.sh"
+# asdf configuration (Homebrew installation)
+if command -v brew >/dev/null 2>&1 && [[ -f "$(brew --prefix asdf)/libexec/asdf.sh" ]]; then
+    . "$(brew --prefix asdf)/libexec/asdf.sh"
 fi
 
-# asdf completions
-if [[ -f "$HOME/.asdf/completions/asdf.bash" ]]; then
-    . "$HOME/.asdf/completions/asdf.bash"
+# asdf completions (zsh-specific)
+if command -v brew >/dev/null 2>&1 && [[ -d "$(brew --prefix asdf)/share/zsh/site-functions" ]]; then
+    fpath=($(brew --prefix asdf)/share/zsh/site-functions $fpath)
 fi

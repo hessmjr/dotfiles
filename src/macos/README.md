@@ -63,7 +63,7 @@ The macOS setup script automatically configures various system preferences to op
 
 ### asdf Version Manager
 - Installs asdf via Homebrew
-- Adds common plugins (nodejs, python, ruby, golang, rust)
+- Adds common plugins (nodejs, python, ruby, golang)
 - Prompts to install latest versions of Node.js, Python, and Ruby
 - Configures shell integration for immediate use
 

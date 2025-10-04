@@ -59,6 +59,9 @@ run_macos_setup() {
     print_info "Setting up asdf Version Manager..."
     "$script_dir/asdf.sh"
 
+    print_info "Setting up Favorites folder..."
+    "$script_dir/favorites.sh"
+
     print_success "All macOS preference scripts completed successfully!"
 }
 
@@ -150,6 +153,16 @@ check_macos_status() {
         print_success "asdf is already installed"
     else
         print_info "asdf needs to be installed"
+        needs_update=true
+    fi
+    ((checked_count++))
+
+    # Check Favorites folder
+    ((total_checks++))
+    if "$script_dir/favorites.sh" --check-only 2>/dev/null; then
+        print_success "Favorites folder is properly configured"
+    else
+        print_info "Favorites folder needs to be set up"
         needs_update=true
     fi
     ((checked_count++))

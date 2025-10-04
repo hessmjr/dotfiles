@@ -11,6 +11,7 @@ check_zsh_status() {
     local existing_files=()
     local missing_files=()
     local needs_update=false
+    local zsh_dir="$HOME/.zsh"
 
     local zsh_files=(
         "aliases.zsh"
@@ -19,8 +20,14 @@ check_zsh_status() {
         "prompt.zsh"
     )
 
+    # Check if ~/.zsh directory exists
+    if [[ ! -d "$zsh_dir" ]]; then
+        print_info "~/.zsh directory does not exist"
+        needs_update=true
+    fi
+
     for file in "${zsh_files[@]}"; do
-        local target="$HOME/.$file"
+        local target="$zsh_dir/$file"
         local expected_source="$SCRIPT_DIR/src/zsh/$file"
 
         if [[ -f "$target" ]]; then
@@ -58,6 +65,13 @@ create_zsh_symlinks() {
     local backup_dir="$HOME/.dotfiles_backup/$timestamp"
     mkdir -p "$backup_dir"
 
+    # Create ~/.zsh directory if it doesn't exist
+    local zsh_dir="$HOME/.zsh"
+    if [[ ! -d "$zsh_dir" ]]; then
+        print_info "Creating ~/.zsh directory..."
+        mkdir -p "$zsh_dir"
+    fi
+
     print_info "Backup directory: $backup_dir"
 
     local zsh_files=(
@@ -69,7 +83,7 @@ create_zsh_symlinks() {
 
     for file in "${zsh_files[@]}"; do
         local source="$SCRIPT_DIR/src/zsh/$file"
-        local target="$HOME/.$file"
+        local target="$zsh_dir/$file"
 
         if [[ -f "$source" ]]; then
             if [[ -f "$target" ]]; then
@@ -88,6 +102,28 @@ create_zsh_symlinks() {
             print_warning "Source file $source not found, skipping"
         fi
     done
+
+    # Create private.zsh template if it doesn't exist
+    local private_file="$zsh_dir/private.zsh"
+    if [[ ! -f "$private_file" ]]; then
+        print_info "Creating private.zsh template for secrets..."
+        cat > "$private_file" << 'EOF'
+# Private Zsh Configuration
+# This file is for personal secrets, API keys, and sensitive configurations
+# Add your private configurations here - this file is not tracked in git
+
+# Example:
+# export API_KEY="your-secret-api-key"
+# export DATABASE_PASSWORD="your-database-password"
+# alias secret_command="your-secret-command"
+
+# Add your private configurations below this line
+EOF
+        print_success "Created $private_file template"
+        print_info "You can edit it with: edit_zsh_private"
+    else
+        print_info "private.zsh already exists, skipping creation"
+    fi
 
     if [[ -d "$backup_dir" ]] && [[ "$(ls -A "$backup_dir")" ]]; then
         print_info "Previous zsh configurations backed up to: $backup_dir"

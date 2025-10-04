@@ -5,6 +5,7 @@ alias open="open ."
 # I like quick access to my .zshrc file
 alias edit_zshrc="open -a TextEdit ~/.zshrc"
 alias source_zsh="source ~/.zshrc"
+alias edit_zsh_private="open -a TextEdit ~/.zsh/private.zsh"
 
 # docker alias
 alias dc="docker-compose"

@@ -67,6 +67,15 @@ The macOS setup script automatically configures various system preferences to op
 - Prompts to install latest versions of Node.js, Python, and Ruby
 - Configures shell integration for immediate use
 
+### Favorites Folder
+- Creates a `favorites` folder in your home directory
+- Adds symbolic links (aliases) to frequently accessed directories:
+  - **Documents** - Quick access to your Documents folder
+  - **Desktop** - Quick access to your Desktop folder
+  - **zsh** - Quick access to your zsh configuration directory
+- Automatically adds the favorites folder to your dock for easy access
+- The aliases appear as normal folders without "alias" in their names
+
 ## Installation
 
 The macOS setup is automatically run when you execute the main install script. It will:

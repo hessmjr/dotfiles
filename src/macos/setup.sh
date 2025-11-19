@@ -99,6 +99,15 @@ run_macos_setup() {
         print_info "Skipping Developer Tools"
     fi
 
+    if ask_for_confirmation "Set up Oh My Zsh?" "y"; then
+        print_info "Setting up Oh My Zsh..."
+        if ! run_script_safely "$script_dir/oh_my_zsh.sh" "Oh My Zsh"; then
+            print_warning "Oh My Zsh setup failed, continuing..."
+        fi
+    else
+        print_info "Skipping Oh My Zsh"
+    fi
+
     if ask_for_confirmation "Set up Homebrew Development Environment?" "y"; then
         print_info "Setting up Homebrew Development Environment..."
         if ! run_script_safely "$script_dir/homebrew.sh" "Homebrew"; then
@@ -217,6 +226,16 @@ check_macos_status() {
         print_success "asdf is already installed"
     else
         print_info "asdf needs to be installed"
+        needs_update=true
+    fi
+    ((checked_count++))
+
+    # Check Oh My Zsh
+    ((total_checks++))
+    if [[ -d "$HOME/.oh-my-zsh" ]]; then
+        print_success "Oh My Zsh is already installed"
+    else
+        print_info "Oh My Zsh needs to be installed"
         needs_update=true
     fi
     ((checked_count++))

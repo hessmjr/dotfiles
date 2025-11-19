@@ -63,7 +63,7 @@ create_zsh_symlinks() {
 
     local timestamp=$(date +"%Y%m%d_%H%M%S")
     local backup_dir="$HOME/.dotfiles_backup/$timestamp"
-    mkdir -p "$backup_dir"
+    local backup_created=false
 
     # Create ~/.zsh directory if it doesn't exist
     local zsh_dir="$HOME/.zsh"
@@ -72,14 +72,29 @@ create_zsh_symlinks() {
         mkdir -p "$zsh_dir"
     fi
 
-    print_info "Backup directory: $backup_dir"
-
     local zsh_files=(
         "aliases.zsh"
         "exports.zsh"
         "functions.zsh"
         "prompt.zsh"
     )
+
+    # First pass: check if any files need backing up
+    local needs_backup=false
+    for file in "${zsh_files[@]}"; do
+        local target="$zsh_dir/$file"
+        if [[ -f "$target" ]] && [[ ! -L "$target" ]]; then
+            needs_backup=true
+            break
+        fi
+    done
+
+    # Only create backup directory if there are files to backup
+    if [[ "$needs_backup" == true ]]; then
+        mkdir -p "$backup_dir"
+        backup_created=true
+        print_info "Backup directory: $backup_dir"
+    fi
 
     for file in "${zsh_files[@]}"; do
         local source="$SCRIPT_DIR/src/zsh/$file"
@@ -88,11 +103,19 @@ create_zsh_symlinks() {
         if [[ -f "$source" ]]; then
             if [[ -f "$target" ]]; then
                 if [[ ! -L "$target" ]]; then
+                    if [[ "$backup_created" == false ]]; then
+                        mkdir -p "$backup_dir"
+                        backup_created=true
+                        print_info "Backup directory: $backup_dir"
+                    fi
                     print_warning "Backing up existing $target to $backup_dir/"
                     mv "$target" "$backup_dir/"
                 elif [[ -L "$target" ]]; then
-                    print_info "Backing up existing symlink $target to $backup_dir/"
-                    cp -P "$target" "$backup_dir/" 2>/dev/null || true
+                    # Only backup symlink if backup dir was already created
+                    if [[ "$backup_created" == true ]]; then
+                        print_info "Backing up existing symlink $target to $backup_dir/"
+                        cp -P "$target" "$backup_dir/" 2>/dev/null || true
+                    fi
                 fi
             fi
 
@@ -125,9 +148,13 @@ EOF
         print_info "private.zsh already exists, skipping creation"
     fi
 
-    if [[ -d "$backup_dir" ]] && [[ "$(ls -A "$backup_dir")" ]]; then
+    # Only show backup message if backup directory exists and has files
+    if [[ "$backup_created" == true ]] && [[ -d "$backup_dir" ]] && [[ "$(ls -A "$backup_dir" 2>/dev/null)" ]]; then
         print_info "Previous zsh configurations backed up to: $backup_dir"
         print_info "To restore: copy files from backup directory to your home directory"
+    elif [[ "$backup_created" == true ]] && [[ -d "$backup_dir" ]] && [[ -z "$(ls -A "$backup_dir" 2>/dev/null)" ]]; then
+        # Clean up empty backup directory
+        rmdir "$backup_dir" 2>/dev/null || true
     fi
 }
 

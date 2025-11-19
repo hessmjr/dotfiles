@@ -36,9 +36,17 @@ asdf_install_latest() {
     local latest_version=$(asdf latest "$tool" 2>/dev/null)
     if [[ -n "$latest_version" ]]; then
         print_info "Installing latest $tool version: $latest_version"
-        asdf install "$tool" "$latest_version"
-        asdf global "$tool" "$latest_version"
-        print_success "$tool $latest_version installed and set as global"
+        if asdf install "$tool" "$latest_version"; then
+            # Use 'asdf set' instead of deprecated 'asdf global'
+            if asdf set "$tool" "$latest_version" --home; then
+                print_success "$tool $latest_version installed and set as default"
+            else
+                print_warning "Failed to set $tool $latest_version as default, but installation succeeded"
+            fi
+        else
+            print_error "Failed to install $tool $latest_version"
+            return 1
+        fi
     else
         print_error "Could not find latest version for $tool"
         return 1

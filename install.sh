@@ -46,7 +46,8 @@ download_repo() {
 
     if [[ -f "./src/main.sh" ]]; then
         print_success "Repository downloaded successfully"
-        ./src/main.sh
+        # Redirect stdin from /dev/tty to allow interactive prompts when piped
+        ./src/main.sh < /dev/tty
     else
         print_error "Failed to download repository properly"
         exit 1

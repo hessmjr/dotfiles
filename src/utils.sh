@@ -67,6 +67,16 @@ ask_for_confirmation() {
         fi
     fi
 
+    # Check if stdin is connected to a terminal
+    if [[ ! -t 0 ]]; then
+        print_warning "Not running in an interactive terminal. Using default '$default' for '$message'"
+        if [[ "$default" == "y" ]]; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+
     local prompt
     if [[ "$default" == "y" ]]; then
         prompt="$message (Y/n): "

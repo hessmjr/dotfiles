@@ -35,34 +35,70 @@ run_macos_setup() {
 
     close_system_preferences
 
-    print_info "Setting up Dashboard preferences..."
-    "$script_dir/dashboard.sh"
+    if ask_for_confirmation "Set up Dashboard preferences?" "y"; then
+        print_info "Setting up Dashboard preferences..."
+        "$script_dir/dashboard.sh"
+    else
+        print_info "Skipping Dashboard preferences"
+    fi
 
-    print_info "Setting up Keyboard preferences..."
-    "$script_dir/keyboard.sh"
+    if ask_for_confirmation "Set up Keyboard preferences?" "y"; then
+        print_info "Setting up Keyboard preferences..."
+        "$script_dir/keyboard.sh"
+    else
+        print_info "Skipping Keyboard preferences"
+    fi
 
-    print_info "Setting up Trackpad preferences..."
-    "$script_dir/trackpad.sh"
+    if ask_for_confirmation "Set up Trackpad preferences?" "y"; then
+        print_info "Setting up Trackpad preferences..."
+        "$script_dir/trackpad.sh"
+    else
+        print_info "Skipping Trackpad preferences"
+    fi
 
-    print_info "Setting up UI & UX preferences..."
-    "$script_dir/ui_and_ux.sh"
+    if ask_for_confirmation "Set up UI & UX preferences?" "y"; then
+        print_info "Setting up UI & UX preferences..."
+        "$script_dir/ui_and_ux.sh"
+    else
+        print_info "Skipping UI & UX preferences"
+    fi
 
-    print_info "Setting up System Updates preferences..."
-    "$script_dir/system_updates.sh"
+    if ask_for_confirmation "Set up System Updates preferences?" "y"; then
+        print_info "Setting up System Updates preferences..."
+        "$script_dir/system_updates.sh"
+    else
+        print_info "Skipping System Updates preferences"
+    fi
 
-    print_info "Setting up Developer Tools..."
-    "$script_dir/developer_tools.sh"
+    if ask_for_confirmation "Set up Developer Tools (Xcode Command Line Tools)?" "y"; then
+        print_info "Setting up Developer Tools..."
+        "$script_dir/developer_tools.sh"
+    else
+        print_info "Skipping Developer Tools"
+    fi
 
-    print_info "Setting up Homebrew Development Environment..."
-    "$script_dir/homebrew.sh"
+    if ask_for_confirmation "Set up Homebrew Development Environment?" "y"; then
+        print_info "Setting up Homebrew Development Environment..."
+        "$script_dir/homebrew.sh"
+    else
+        print_info "Skipping Homebrew Development Environment"
+    fi
 
-    print_info "Setting up asdf Version Manager..."
-    "$script_dir/asdf.sh"
+    if ask_for_confirmation "Set up asdf Version Manager?" "y"; then
+        print_info "Setting up asdf Version Manager..."
+        "$script_dir/asdf.sh"
+    else
+        print_info "Skipping asdf Version Manager"
+    fi
 
-    print_info "Setting up Favorites folder..."
-    "$script_dir/favorites.sh"
+    if ask_for_confirmation "Set up Favorites folder?" "y"; then
+        print_info "Setting up Favorites folder..."
+        "$script_dir/favorites.sh"
+    else
+        print_info "Skipping Favorites folder"
+    fi
 
-    print_success "All macOS preference scripts completed successfully!"
+    print_success "macOS preference setup completed!"
 }
 
 check_macos_status() {

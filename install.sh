@@ -25,7 +25,7 @@ create_temp_dir() {
     echo "$temp_dir"
 }
 
-is_standalone() {
+is_remote() {
     [[ ! -f "$SCRIPT_DIR/src/main.sh" ]]
 }
 
@@ -54,11 +54,11 @@ download_repo() {
 }
 
 main() {
-    if is_standalone; then
-        print_info "Running in standalone mode - downloading full repository..."
+    if is_remote; then
+        print_info "Running in remote mode - downloading full repository to temp directory..."
         download_repo
     else
-        print_info "Running from repository - executing main script..."
+        print_info "Running from local directory - executing main script..."
         "$SCRIPT_DIR/src/main.sh"
     fi
 }

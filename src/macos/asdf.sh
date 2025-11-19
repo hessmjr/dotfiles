@@ -138,7 +138,13 @@ main() {
         return 0
     fi
 
-    install_asdf
+    print_info "asdf needs to be installed"
+    if ask_for_confirmation "Install asdf now?" "y"; then
+        install_asdf
+    else
+        print_info "Skipping asdf installation"
+        return 0
+    fi
 }
 
 main "$@"

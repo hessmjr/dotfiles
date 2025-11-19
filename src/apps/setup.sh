@@ -34,7 +34,6 @@ discover_app_installers() {
 }
 
 run_apps_setup() {
-    local non_interactive="${1:-false}"
     print_info "Discovering app installers..."
 
     local installers=($(discover_app_installers))
@@ -48,14 +47,10 @@ run_apps_setup() {
 
     init_progress "${#installers[@]}"
 
-    if [[ "$non_interactive" != true ]]; then
-        if ! ask_for_confirmation_with_details "App Installation Summary" \
-            "Found ${#installers[@]} applications to potentially install. You'll be prompted before each installation." "y"; then
-            print_info "App installation cancelled by user"
-            return 0
-        fi
-    else
-        print_info "Non-interactive mode: proceeding with all app installations"
+    if ! ask_for_confirmation_with_details "App Installation Summary" \
+        "Found ${#installers[@]} applications to potentially install. You'll be prompted before each installation." "y"; then
+        print_info "App installation cancelled by user"
+        return 0
     fi
 
     print_info "Starting app installation process..."
@@ -136,8 +131,6 @@ check_apps_status() {
 }
 
 main() {
-    local non_interactive="${1:-false}"
-
     while [[ $# -gt 0 ]]; do
         case $1 in
             --check-only)
@@ -147,13 +140,9 @@ main() {
                     exit 1
                 fi
                 ;;
-            --non-interactive)
-                non_interactive=true
-                shift
-                ;;
             *)
                 print_warning "Unknown option: $1"
-                print_info "Usage: $0 [--check-only] [--non-interactive]"
+                print_info "Usage: $0 [--check-only]"
                 exit 1
                 ;;
         esac
@@ -168,7 +157,7 @@ main() {
         exit 0
     fi
 
-    run_apps_setup "$non_interactive"
+    run_apps_setup
 
     print_success "Applications setup complete!"
 }

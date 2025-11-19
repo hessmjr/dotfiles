@@ -65,4 +65,3 @@ After installation, you may need to:
 - **Interactive Control**: User prompts and confirmation throughout setup
 - **Progress Visibility**: Clear feedback on installation progress
 - **Error Handling**: Robust error handling and recovery
-- **Automation Support**: Non-interactive mode for scripting and automation

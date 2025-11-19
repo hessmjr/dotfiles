@@ -57,26 +57,6 @@ ask_for_confirmation() {
     local message="$1"
     local default="${2:-y}"  # Default to 'y' if not specified
 
-    # Check if we're in non-interactive mode
-    if [[ "${NON_INTERACTIVE:-false}" == "true" ]]; then
-        print_info "Non-interactive mode: using default '$default' for '$message'"
-        if [[ "$default" == "y" ]]; then
-            return 0
-        else
-            return 1
-        fi
-    fi
-
-    # Check if stdin is connected to a terminal
-    if [[ ! -t 0 ]]; then
-        print_warning "Not running in an interactive terminal. Using default '$default' for '$message'"
-        if [[ "$default" == "y" ]]; then
-            return 0
-        else
-            return 1
-        fi
-    fi
-
     local prompt
     if [[ "$default" == "y" ]]; then
         prompt="$message (Y/n): "
@@ -84,14 +64,33 @@ ask_for_confirmation() {
         prompt="$message (y/N): "
     fi
 
-    while true; do
-        read -p "$prompt" -r response
-        case "$response" in
-            [Yy]|"") return 0 ;;  # Yes or empty (default)
-            [Nn]) return 1 ;;     # No
-            *) print_warning "Please answer 'y' or 'n'" ;;
-        esac
-    done
+    # Try to read from /dev/tty first (works even when stdin is redirected)
+    # Fall back to stdin if /dev/tty is not available
+    if [[ -r /dev/tty ]] && [[ -w /dev/tty ]]; then
+        while true; do
+            echo -n "$prompt" > /dev/tty
+            read -r response < /dev/tty
+            case "$response" in
+                [Yy]|"") return 0 ;;  # Yes or empty (default)
+                [Nn]) return 1 ;;     # No
+                *) print_warning "Please answer 'y' or 'n'" ;;
+            esac
+        done
+    elif [[ -t 0 ]]; then
+        # Fall back to stdin if it's a TTY
+        while true; do
+            read -p "$prompt" -r response
+            case "$response" in
+                [Yy]|"") return 0 ;;  # Yes or empty (default)
+                [Nn]) return 1 ;;     # No
+                *) print_warning "Please answer 'y' or 'n'" ;;
+            esac
+        done
+    else
+        # No interactive terminal available - error out
+        print_error "Cannot prompt for input: not running in an interactive terminal"
+        exit 1
+    fi
 }
 
 ask_for_confirmation_with_details() {

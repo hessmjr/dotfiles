@@ -20,7 +20,9 @@ print_error() {
 }
 
 create_temp_dir() {
-    mktemp -d
+    local temp_dir
+    temp_dir=$(mktemp -d)
+    echo "$temp_dir"
 }
 
 is_standalone() {

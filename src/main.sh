@@ -66,8 +66,14 @@ execute_setup() {
     if [[ -f "$SCRIPT_DIR/zsh/setup.sh" ]]; then
         print_section "Zsh Configuration Setup"
         print_info "This will configure your zsh shell with custom aliases, functions, and prompt settings."
+        print_info ""
+        print_info "Checking current zsh configuration..."
 
-        if ask_for_confirmation "Would you like to set up zsh configuration?" "y"; then
+        # Run check to show current state
+        "$SCRIPT_DIR/zsh/setup.sh" --check-only 2>/dev/null || true
+
+        print_info ""
+        if ask_for_confirmation "Would you like to set up/update zsh configuration?" "y"; then
             print_info "Running zsh configuration setup..."
             "$SCRIPT_DIR/zsh/setup.sh"
         else
@@ -81,8 +87,14 @@ execute_setup() {
     if [[ -f "$SCRIPT_DIR/macos/setup.sh" ]]; then
         print_section "macOS System Preferences Setup"
         print_info "This will configure various macOS system preferences including keyboard, trackpad, UI settings, and developer tools."
+        print_info ""
+        print_info "Checking current macOS preferences..."
 
-        if ask_for_confirmation "Would you like to set up macOS system preferences?" "y"; then
+        # Run check to show current state
+        "$SCRIPT_DIR/macos/setup.sh" --check-only 2>/dev/null || true
+
+        print_info ""
+        if ask_for_confirmation "Would you like to set up/update macOS system preferences?" "y"; then
             print_info "Running macOS system preferences setup..."
             "$SCRIPT_DIR/macos/setup.sh"
         else
@@ -96,8 +108,14 @@ execute_setup() {
     if [[ -f "$SCRIPT_DIR/apps/setup.sh" ]]; then
         print_section "Applications Setup"
         print_info "This will install various applications including development tools, browsers, and utilities."
+        print_info ""
+        print_info "Checking current applications..."
 
-        if ask_for_confirmation "Would you like to set up applications?" "y"; then
+        # Run check to show current state
+        "$SCRIPT_DIR/apps/setup.sh" --check-only 2>/dev/null || true
+
+        print_info ""
+        if ask_for_confirmation "Would you like to set up/update applications?" "y"; then
             print_info "Running applications setup..."
             "$SCRIPT_DIR/apps/setup.sh"
         else

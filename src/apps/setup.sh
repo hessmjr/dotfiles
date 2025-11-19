@@ -6,6 +6,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
+# Get the apps directory (where this script is located)
+APPS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 check_macos() {
     if [[ "$OSTYPE" != "darwin"* ]]; then
         print_error "This script is intended for macOS only"
@@ -15,7 +18,7 @@ check_macos() {
 }
 
 discover_app_installers() {
-    local installers_dir="$SCRIPT_DIR/installers"
+    local installers_dir="$APPS_DIR/installers"
     local installers=()
 
     if [[ ! -d "$installers_dir" ]]; then
@@ -39,7 +42,7 @@ run_apps_setup() {
     local installers=($(discover_app_installers))
 
     if [[ ${#installers[@]} -eq 0 ]]; then
-        print_warning "No app installers found in $SCRIPT_DIR/installers/"
+        print_warning "No app installers found in $APPS_DIR/installers/"
         return 1
     fi
 
@@ -56,7 +59,7 @@ run_apps_setup() {
     print_info "Starting app installation process..."
 
     for installer in "${installers[@]}"; do
-        local installer_path="$SCRIPT_DIR/installers/$installer"
+        local installer_path="$APPS_DIR/installers/$installer"
 
         if [[ -f "$installer_path" ]]; then
             update_progress "Processing $installer"
@@ -77,7 +80,7 @@ run_apps_setup() {
 check_apps_status() {
     print_info "Checking current applications status..."
 
-    local installers_dir="$SCRIPT_DIR/installers"
+    local installers_dir="$APPS_DIR/installers"
     local needs_update=false
     local checked_count=0
     local total_count=0
@@ -100,7 +103,7 @@ check_apps_status() {
 
     # Check each application using its own installer script
     for installer in "${installers[@]}"; do
-        local installer_path="$SCRIPT_DIR/installers/$installer"
+        local installer_path="$APPS_DIR/installers/$installer"
 
         if [[ -f "$installer_path" ]]; then
             print_info "Checking $installer..."

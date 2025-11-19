@@ -58,13 +58,22 @@ run_apps_setup() {
 
     print_info "Starting app installation process..."
 
+    # Helper function to run scripts safely (prevents exit from killing parent)
+    run_script_safely() {
+        local script_path="$1"
+        # Run in subshell with set +e to prevent exit from killing parent
+        (set +e; "$script_path")
+        local exit_code=$?
+        return $exit_code
+    }
+
     for installer in "${installers[@]}"; do
         local installer_path="$APPS_DIR/installers/$installer"
 
         if [[ -f "$installer_path" ]]; then
             update_progress "Processing $installer"
 
-            if "$installer_path"; then
+            if run_script_safely "$installer_path"; then
                 print_success "$installer completed successfully"
             else
                 print_warning "$installer failed, continuing with other apps..."

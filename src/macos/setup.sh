@@ -35,65 +35,93 @@ run_macos_setup() {
 
     close_system_preferences
 
+    # Helper function to run scripts safely (prevents exit from killing parent)
+    run_script_safely() {
+        local script_path="$1"
+        local script_name="$2"
+        # Run in subshell with set +e to prevent exit from killing parent
+        (set +e; "$script_path")
+        local exit_code=$?
+        return $exit_code
+    }
+
     if ask_for_confirmation "Set up Dashboard preferences?" "y"; then
         print_info "Setting up Dashboard preferences..."
-        "$script_dir/dashboard.sh"
+        if ! run_script_safely "$script_dir/dashboard.sh" "Dashboard"; then
+            print_warning "Dashboard preferences setup failed, continuing..."
+        fi
     else
         print_info "Skipping Dashboard preferences"
     fi
 
     if ask_for_confirmation "Set up Keyboard preferences?" "y"; then
         print_info "Setting up Keyboard preferences..."
-        "$script_dir/keyboard.sh"
+        if ! run_script_safely "$script_dir/keyboard.sh" "Keyboard"; then
+            print_warning "Keyboard preferences setup failed, continuing..."
+        fi
     else
         print_info "Skipping Keyboard preferences"
     fi
 
     if ask_for_confirmation "Set up Trackpad preferences?" "y"; then
         print_info "Setting up Trackpad preferences..."
-        "$script_dir/trackpad.sh"
+        if ! run_script_safely "$script_dir/trackpad.sh" "Trackpad"; then
+            print_warning "Trackpad preferences setup failed, continuing..."
+        fi
     else
         print_info "Skipping Trackpad preferences"
     fi
 
     if ask_for_confirmation "Set up UI & UX preferences?" "y"; then
         print_info "Setting up UI & UX preferences..."
-        "$script_dir/ui_and_ux.sh"
+        if ! run_script_safely "$script_dir/ui_and_ux.sh" "UI & UX"; then
+            print_warning "UI & UX preferences setup failed, continuing..."
+        fi
     else
         print_info "Skipping UI & UX preferences"
     fi
 
     if ask_for_confirmation "Set up System Updates preferences?" "y"; then
         print_info "Setting up System Updates preferences..."
-        "$script_dir/system_updates.sh"
+        if ! run_script_safely "$script_dir/system_updates.sh" "System Updates"; then
+            print_warning "System Updates preferences setup failed, continuing..."
+        fi
     else
         print_info "Skipping System Updates preferences"
     fi
 
     if ask_for_confirmation "Set up Developer Tools (Xcode Command Line Tools)?" "y"; then
         print_info "Setting up Developer Tools..."
-        "$script_dir/developer_tools.sh"
+        if ! run_script_safely "$script_dir/developer_tools.sh" "Developer Tools"; then
+            print_warning "Developer Tools setup failed, continuing..."
+        fi
     else
         print_info "Skipping Developer Tools"
     fi
 
     if ask_for_confirmation "Set up Homebrew Development Environment?" "y"; then
         print_info "Setting up Homebrew Development Environment..."
-        "$script_dir/homebrew.sh"
+        if ! run_script_safely "$script_dir/homebrew.sh" "Homebrew"; then
+            print_warning "Homebrew Development Environment setup failed, continuing..."
+        fi
     else
         print_info "Skipping Homebrew Development Environment"
     fi
 
     if ask_for_confirmation "Set up asdf Version Manager?" "y"; then
         print_info "Setting up asdf Version Manager..."
-        "$script_dir/asdf.sh"
+        if ! run_script_safely "$script_dir/asdf.sh" "asdf"; then
+            print_warning "asdf Version Manager setup failed, continuing..."
+        fi
     else
         print_info "Skipping asdf Version Manager"
     fi
 
     if ask_for_confirmation "Set up Favorites folder?" "y"; then
         print_info "Setting up Favorites folder..."
-        "$script_dir/favorites.sh"
+        if ! run_script_safely "$script_dir/favorites.sh" "Favorites"; then
+            print_warning "Favorites folder setup failed, continuing..."
+        fi
     else
         print_info "Skipping Favorites folder"
     fi

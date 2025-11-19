@@ -63,6 +63,15 @@ check_status() {
 execute_setup() {
     print_info "Setting up dotfiles..."
 
+    # Helper function to run scripts safely (prevents exit from killing parent)
+    run_script_safely() {
+        local script_path="$1"
+        # Run in subshell with set +e to prevent exit from killing parent
+        (set +e; "$script_path")
+        local exit_code=$?
+        return $exit_code
+    }
+
     if [[ -f "$SCRIPT_DIR/zsh/setup.sh" ]]; then
         print_section "Zsh Configuration Setup"
         print_info "This will configure your zsh shell with custom aliases, functions, and prompt settings."
@@ -75,7 +84,9 @@ execute_setup() {
         print_info ""
         if ask_for_confirmation "Would you like to set up/update zsh configuration?" "y"; then
             print_info "Running zsh configuration setup..."
-            "$SCRIPT_DIR/zsh/setup.sh"
+            if ! run_script_safely "$SCRIPT_DIR/zsh/setup.sh"; then
+                print_warning "Zsh configuration setup failed, continuing with other sections..."
+            fi
         else
             print_info "Skipping zsh configuration setup"
         fi
@@ -96,7 +107,9 @@ execute_setup() {
         print_info ""
         if ask_for_confirmation "Would you like to set up/update macOS system preferences?" "y"; then
             print_info "Running macOS system preferences setup..."
-            "$SCRIPT_DIR/macos/setup.sh"
+            if ! run_script_safely "$SCRIPT_DIR/macos/setup.sh"; then
+                print_warning "macOS system preferences setup failed, continuing with other sections..."
+            fi
         else
             print_info "Skipping macOS system preferences setup"
         fi
@@ -117,7 +130,9 @@ execute_setup() {
         print_info ""
         if ask_for_confirmation "Would you like to set up/update applications?" "y"; then
             print_info "Running applications setup..."
-            "$SCRIPT_DIR/apps/setup.sh"
+            if ! run_script_safely "$SCRIPT_DIR/apps/setup.sh"; then
+                print_warning "Applications setup failed, continuing..."
+            fi
         else
             print_info "Skipping applications setup"
         fi

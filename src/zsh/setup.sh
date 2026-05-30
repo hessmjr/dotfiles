@@ -28,7 +28,7 @@ check_zsh_status() {
 
     for file in "${zsh_files[@]}"; do
         local target="$zsh_dir/$file"
-        local expected_source="$SCRIPT_DIR/src/zsh/$file"
+        local expected_source="$SCRIPT_DIR/zsh/$file"
 
         if [[ -f "$target" ]]; then
             existing_files+=("$file")
@@ -97,7 +97,7 @@ create_zsh_symlinks() {
     fi
 
     for file in "${zsh_files[@]}"; do
-        local source="$SCRIPT_DIR/src/zsh/$file"
+        local source="$SCRIPT_DIR/zsh/$file"
         local target="$zsh_dir/$file"
 
         if [[ -f "$source" ]]; then

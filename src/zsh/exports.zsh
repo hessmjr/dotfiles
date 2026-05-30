@@ -10,6 +10,9 @@ if command -v brew >/dev/null 2>&1 && [[ -f "$(brew --prefix asdf)/libexec/asdf.
     . "$(brew --prefix asdf)/libexec/asdf.sh"
 fi
 
+export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
+export PATH="$ASDF_DATA_DIR/shims:$PATH"
+
 # asdf completions (zsh-specific)
 if command -v brew >/dev/null 2>&1 && [[ -d "$(brew --prefix asdf)/share/zsh/site-functions" ]]; then
     fpath=($(brew --prefix asdf)/share/zsh/site-functions $fpath)

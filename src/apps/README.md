@@ -14,7 +14,6 @@ The apps setup script automatically installs the following applications directly
 - **iTerm2** - Terminal emulator
 
 ### Productivity
-- **Standard Notes** - Secure note-taking
 - **1Password** - Password manager
 - **Tiles** - Window management
 
@@ -86,7 +85,6 @@ src/apps/
     ├── firefox.sh       # Firefox browser
     ├── tiles.sh         # Tiles window manager
     ├── google_chrome.sh # Google Chrome
-    ├── standard_notes.sh # Standard Notes
     └── iterm2.sh        # iTerm2 terminal
 ```
 

@@ -69,7 +69,7 @@ After manual setup, you can:
 - Restart your terminal for changes to take effect
 - Or run `source ~/.zshrc` to reload all configurations
 - Customize any of these files to match your preferences
-- Change Oh My Zsh themes by editing `~/.prompt.zsh`
+- Change Oh My Zsh themes by editing `~/.zsh/prompt.zsh`
 
 ## Customization
 

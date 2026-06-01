@@ -126,15 +126,6 @@ run_macos_setup() {
         print_info "Skipping asdf Version Manager"
     fi
 
-    if ask_for_confirmation "Set up Favorites folder?" "y"; then
-        print_info "Setting up Favorites folder..."
-        if ! run_script_safely "$script_dir/favorites.sh" "Favorites"; then
-            print_warning "Favorites folder setup failed, continuing..."
-        fi
-    else
-        print_info "Skipping Favorites folder"
-    fi
-
     print_success "macOS preference setup completed!"
 }
 
@@ -236,16 +227,6 @@ check_macos_status() {
         print_success "Oh My Zsh is already installed"
     else
         print_info "Oh My Zsh needs to be installed"
-        needs_update=true
-    fi
-    ((checked_count++))
-
-    # Check Favorites folder
-    ((total_checks++))
-    if "$script_dir/favorites.sh" --check-only 2>/dev/null; then
-        print_success "Favorites folder is properly configured"
-    else
-        print_info "Favorites folder needs to be set up"
         needs_update=true
     fi
     ((checked_count++))

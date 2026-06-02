@@ -43,18 +43,11 @@ check_status() {
         needs_update=true
     fi
 
-    if "$SCRIPT_DIR/apps/setup.sh" --check-only 2>/dev/null; then
-        print_info "Applications are up to date"
-    else
-        print_info "Applications updates needed"
-        needs_update=true
-    fi
-
     if [[ "$needs_update" == true ]]; then
         print_info "Updates needed - proceeding with installation/update"
         return 1
     else
-        print_success "All dotfiles, macOS preferences, and applications are properly configured and up to date!"
+        print_success "Zsh configuration and macOS preferences are properly configured and up to date!"
         print_info "No installation needed - everything is already set up correctly."
         return 0
     fi
@@ -117,38 +110,23 @@ execute_setup() {
         print_error "macOS setup script not found"
         exit 1
     fi
+}
 
+# Applications are informational only: show a list of apps the user may want
+# to install. Offered on every run, independent of the zsh/macOS status check.
+show_apps() {
     if [[ -f "$SCRIPT_DIR/apps/setup.sh" ]]; then
-        print_section "Applications Setup"
-        print_info "This will install various applications including development tools, browsers, and utilities."
-        print_info ""
-        print_info "Checking current applications..."
-
-        # Run check to show current state
-        "$SCRIPT_DIR/apps/setup.sh" --check-only 2>/dev/null || true
-
-        print_info ""
-        if ask_for_confirmation "Would you like to set up/update applications?" "y"; then
-            print_info "Running applications setup..."
-            if ! run_script_safely "$SCRIPT_DIR/apps/setup.sh"; then
-                print_warning "Applications setup failed, continuing..."
-            fi
-        else
-            print_info "Skipping applications setup"
-        fi
-    else
-        print_error "Apps setup script not found"
-        exit 1
+        (set +e; "$SCRIPT_DIR/apps/setup.sh") || true
     fi
 }
 
 main() {
     print_info "Starting dotfiles setup..."
     print_section "Dotfiles Setup Overview"
-    print_info "This setup will configure three main areas:"
+    print_info "This setup covers three areas:"
     print_info "1. Zsh Configuration - Shell aliases, functions, and prompt"
     print_info "2. macOS Preferences - System settings, keyboard, trackpad, UI"
-    print_info "3. Applications - Development tools, browsers, utilities"
+    print_info "3. Applications - A list of apps you may want to install"
     print_info ""
     print_info "You will be prompted for each major step. You can choose to complete or skip each section."
 
@@ -157,11 +135,13 @@ main() {
     check_os
 
     if check_status; then
-        print_info "Setup check complete - no action needed."
-        exit 0
+        print_info "Zsh and macOS already configured - no changes needed."
+    else
+        execute_setup
     fi
 
-    execute_setup
+    # Applications are informational; always offer the list.
+    show_apps
 
     print_section "Setup Summary"
     print_success "Dotfiles setup complete!"
@@ -170,7 +150,6 @@ main() {
     print_info "Next steps:"
     print_info "- Restart your terminal to see zsh changes"
     print_info "- Check System Preferences for macOS changes"
-    print_info "- Launch newly installed applications"
 }
 
 main "$@"

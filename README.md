@@ -50,10 +50,10 @@ After installation, you may need to:
 - **Developer Tools**: Essential development environment setup
 - **Package Management**: Development toolchain installation and management
 
-#### **Application Management**
-- **Smart Installation**: Automated application installation from official sources
-- **Progress Tracking**: Real-time installation progress and user control
-- **Modular Design**: Easy customization and management of applications
+#### **Application Suggestions**
+- **Curated List**: Suggested apps you may want to install on a new machine
+- **No Auto-Install**: Just prints the list — you install manually from official sources
+- **Easy to Edit**: App list lives in a simple `apps.txt` data file
 
 #### **Development Environment**
 - **Version Control**: Git and development workflow tools

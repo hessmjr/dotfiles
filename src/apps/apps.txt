@@ -1,0 +1,14 @@
+# Applications you may want to install
+# Format:  App Name | short use
+# Lines starting with # and blank lines are ignored.
+
+Visual Studio Code | code editor
+Cursor             | AI code editor
+Sublime Text       | text editor
+iTerm2             | terminal
+Git Tower          | git GUI client
+Docker             | containers
+1Password          | password manager
+Tiles              | window manager
+Firefox            | web browser
+Google Chrome      | web browser

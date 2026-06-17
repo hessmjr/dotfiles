@@ -49,6 +49,16 @@ check_zsh_status() {
         print_info "Missing zsh files: ${missing_files[*]}"
     fi
 
+    # Check that sourcing is wired into the shell startup files
+    if ! grep -qF "$ZSHENV_MARKER" "$HOME/.zshenv" 2>/dev/null; then
+        print_info "~/.zshenv is not wired to source exports.zsh"
+        needs_update=true
+    fi
+    if ! grep -qF "$ZSHRC_MARKER" "$HOME/.zshrc" 2>/dev/null; then
+        print_info "~/.zshrc is not wired to source interactive config"
+        needs_update=true
+    fi
+
     if [[ "$needs_update" == true ]]; then
         print_info "Zsh configuration updates needed"
         return 1
@@ -158,6 +168,52 @@ EOF
     fi
 }
 
+# Markers used to detect/insert our managed source blocks idempotently.
+ZSHENV_MARKER="# >>> dotfiles (env) >>>"
+ZSHRC_MARKER="# >>> dotfiles (interactive) >>>"
+
+# Append a managed block to a file only if its marker is not already present.
+ensure_block() {
+    local file="$1"
+    local marker="$2"
+    local block="$3"
+
+    [[ -f "$file" ]] || touch "$file"
+
+    if grep -qF "$marker" "$file" 2>/dev/null; then
+        print_info "$(basename "$file") already wired, skipping"
+        return 0
+    fi
+
+    printf '\n%s\n' "$block" >> "$file"
+    print_success "Wired sourcing block into $file"
+}
+
+wire_zsh_sourcing() {
+    print_info "Wiring zsh sourcing into ~/.zshenv and ~/.zshrc..."
+
+    # Environment: loaded for ALL shells (interactive, scripts, cron, ssh cmd).
+    local zshenv_block="$ZSHENV_MARKER
+# Environment variables — loaded for all shells.
+[ -f \"\$HOME/.zsh/exports.zsh\" ] && source \"\$HOME/.zsh/exports.zsh\"
+# <<< dotfiles (env) <<<"
+
+    # Interactive: appended to END of .zshrc so it runs AFTER oh-my-zsh
+    # (prompt.zsh depends on \$PROMPT set by oh-my-zsh).
+    # Listed explicitly (one line per file) so any can be commented out easily.
+    local zshrc_block="$ZSHRC_MARKER
+# Interactive config — loaded after oh-my-zsh.
+# (exports.zsh is sourced from ~/.zshenv so env vars load for all shells.)
+[ -f \"\$HOME/.zsh/aliases.zsh\" ]   && source \"\$HOME/.zsh/aliases.zsh\"
+[ -f \"\$HOME/.zsh/functions.zsh\" ] && source \"\$HOME/.zsh/functions.zsh\"
+[ -f \"\$HOME/.zsh/prompt.zsh\" ]    && source \"\$HOME/.zsh/prompt.zsh\"
+[ -f \"\$HOME/.zsh/private.zsh\" ]   && source \"\$HOME/.zsh/private.zsh\"
+# <<< dotfiles (interactive) <<<"
+
+    ensure_block "$HOME/.zshenv" "$ZSHENV_MARKER" "$zshenv_block"
+    ensure_block "$HOME/.zshrc" "$ZSHRC_MARKER" "$zshrc_block"
+}
+
 main() {
     local check_only=false
 
@@ -191,6 +247,7 @@ main() {
     fi
 
     create_zsh_symlinks
+    wire_zsh_sourcing
 
     print_success "Zsh configuration setup complete!"
     print_info "You may need to restart your terminal or run 'source ~/.zshrc' for changes to take effect"

@@ -19,35 +19,42 @@ print_error() {
     echo -e "\033[0;31m[ERROR]\033[0m $1"
 }
 
-create_temp_dir() {
-    local temp_dir
-    temp_dir=$(mktemp -d)
-    echo "$temp_dir"
-}
+# Permanent install location for remote (curl|bash) installs.
+# Must NOT be a temp dir: setup symlinks ~/.zsh/*.zsh back into this repo,
+# so it has to persist after the installer exits (see issue #9).
+DOTFILES_DIR="$HOME/.dotfiles"
 
 is_remote() {
     [[ ! -f "$SCRIPT_DIR/src/main.sh" ]]
 }
 
 download_repo() {
-    print_info "Downloading full dotfiles repository..."
+    print_info "Installing dotfiles to $DOTFILES_DIR ..."
 
-    local temp_dir=$(create_temp_dir)
-    cd "$temp_dir" || exit 1
+    # If a previous install exists, move it aside rather than clobbering it.
+    if [[ -d "$DOTFILES_DIR" ]]; then
+        local backup="${DOTFILES_DIR}.backup_$(date +%Y%m%d_%H%M%S)"
+        print_info "Existing $DOTFILES_DIR found; moving it to $backup"
+        mv "$DOTFILES_DIR" "$backup"
+    fi
 
+    mkdir -p "$DOTFILES_DIR"
+
+    # Bootstrap with curl/wget + tar only (git is not guaranteed on a fresh Mac).
+    local url="https://github.com/hessmjr/dotfiles/tarball/main"
     if command -v curl >/dev/null 2>&1; then
-        curl -fsSL https://github.com/hessmjr/dotfiles/tarball/main | tar -xz --strip-components 1 --exclude='{*.md,.git*,LICENSE,old/*}'
+        curl -fsSL "$url" | tar -xz --strip-components 1 -C "$DOTFILES_DIR"
     elif command -v wget >/dev/null 2>&1; then
-        wget -O - https://github.com/hessmjr/dotfiles/tarball/main | tar -xz --strip-components 1 --exclude='{*.md,.git*,LICENSE,old/*}'
+        wget -qO - "$url" | tar -xz --strip-components 1 -C "$DOTFILES_DIR"
     else
         print_error "Neither curl nor wget found. Please install one and try again."
         exit 1
     fi
 
-    if [[ -f "./src/main.sh" ]]; then
-        print_success "Repository downloaded successfully"
+    if [[ -f "$DOTFILES_DIR/src/main.sh" ]]; then
+        print_success "Repository installed to $DOTFILES_DIR"
         # Redirect stdin from /dev/tty to allow interactive prompts when piped
-        ./src/main.sh < /dev/tty
+        "$DOTFILES_DIR/src/main.sh" < /dev/tty
     else
         print_error "Failed to download repository properly"
         exit 1
@@ -56,7 +63,7 @@ download_repo() {
 
 main() {
     if is_remote; then
-        print_info "Running in remote mode - downloading full repository to temp directory..."
+        print_info "Running in remote mode - installing to $DOTFILES_DIR ..."
         download_repo
     else
         print_info "Running from local directory - executing main script..."

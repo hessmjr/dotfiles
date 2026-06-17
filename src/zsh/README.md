@@ -25,43 +25,36 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 ## Installation
 
-These files are automatically installed when you run the main install script. They create a `~/.zsh/` directory and symbolic links:
+These files are installed automatically when you run the setup script. It:
 
-- `~/.zsh/aliases.zsh` → `src/zsh/aliases.zsh`
-- `~/.zsh/exports.zsh` → `src/zsh/exports.zsh`
-- `~/.zsh/functions.zsh` → `src/zsh/functions.zsh`
-- `~/.zsh/prompt.zsh` → `src/zsh/prompt.zsh`
+1. Creates a `~/.zsh/` directory and symlinks each config file into it:
+   - `~/.zsh/aliases.zsh` → `src/zsh/aliases.zsh`
+   - `~/.zsh/exports.zsh` → `src/zsh/exports.zsh`
+   - `~/.zsh/functions.zsh` → `src/zsh/functions.zsh`
+   - `~/.zsh/prompt.zsh` → `src/zsh/prompt.zsh`
+   - creates `~/.zsh/private.zsh` (template, not tracked in git)
+2. Wires the sourcing automatically (no manual editing required) by appending
+   managed blocks to `~/.zshenv` and `~/.zshrc`.
 
-## Manual Setup Required
+### Where each file is sourced (env vs rc)
 
-**Important**: After the files are installed, you need to manually add the following lines to your `~/.zshrc` file to source the custom configurations:
+Sourcing is split by **shell type**, not lumped into `.zshrc`:
 
-```bash
-# Load custom configurations (add these AFTER Oh My Zsh loads)
-source ~/.zsh/aliases.zsh
-source ~/.zsh/exports.zsh
-source ~/.zsh/functions.zsh
-source ~/.zsh/prompt.zsh
-source ~/.zsh/private.zsh
-```
+| File | Sourced from | Why |
+|------|--------------|-----|
+| `exports.zsh` | `~/.zshenv` | Environment vars + `PATH` + asdf. `.zshenv` loads for **every** shell — interactive, scripts, cron, `ssh host cmd` — so these are always available. |
+| `aliases.zsh` | `~/.zshrc` | Interactive-only convenience. |
+| `functions.zsh` | `~/.zshrc` | Interactive-only convenience. |
+| `prompt.zsh` | `~/.zshrc` | Needs `$PROMPT` from Oh My Zsh, so it must load **after** Oh My Zsh. |
+| `private.zsh` | `~/.zshrc` | Secrets/aliases for interactive use. |
 
-### How to Add These Lines:
+The `.zshrc` block is appended to the **end** of the file so it runs after
+`source $ZSH/oh-my-zsh.sh`. The blocks are idempotent — re-running setup detects
+the markers (`# >>> dotfiles ... >>>`) and won't add duplicates.
 
-1. **Open your `.zshrc` file:**
-   ```bash
-   nano ~/.zshrc
-   # or
-   code ~/.zshrc
-   ```
-
-2. **Add the source lines AFTER the Oh My Zsh configuration section**
-   - Look for the line that says `source $ZSH/oh-my-zsh.sh`
-   - Add the custom source lines after that line
-
-3. **Save and reload:**
-   ```bash
-   source ~/.zshrc
-   ```
+> **Note:** `exports.zsh` is sourced on every shell, so it must never print to
+> stdout (that would corrupt `scp`/`rsync`/`ssh host cmd`). It uses a hardcoded
+> asdf prefix and a `PATH` de-dupe guard to stay fast and side-effect-free.
 
 ## Usage
 
@@ -80,8 +73,9 @@ After manual setup, you can:
 
 ## Troubleshooting
 
-- **Files not loading?** Check that the source lines are correctly added to `~/.zshrc` AFTER Oh My Zsh loads
-- **Oh My Zsh conflicts?** Ensure the source lines are added after the `source $ZSH/oh-my-zsh.sh` line
+- **Files not loading?** Confirm the managed blocks exist — `grep dotfiles ~/.zshenv ~/.zshrc` — and re-run setup if missing
+- **Env vars missing in scripts/cron?** Those come from `~/.zshenv` (`exports.zsh`); make sure that block is present
+- **Oh My Zsh conflicts?** The `.zshrc` block is appended after `source $ZSH/oh-my-zsh.sh`; don't move it above that line
 - **Permission issues?** Verify the symbolic links are created correctly in the `~/.zsh/` directory
 - **Prompt not working?** Make sure Oh My Zsh is installed and the theme is set in `prompt.zsh`
 - **Private file not loading?** Ensure `~/.zsh/private.zsh` exists and contains your personal configurations

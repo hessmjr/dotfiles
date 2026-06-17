@@ -14,6 +14,12 @@ curl -fsSL https://raw.githubusercontent.com/hessmjr/dotfiles/main/install.sh | 
 wget -O - https://raw.githubusercontent.com/hessmjr/dotfiles/main/install.sh | bash
 ```
 
+When run remotely (piped from cURL/Wget), the installer downloads the repo to
+`~/.dotfiles` and runs from there. This is a **permanent** location — setup
+symlinks (e.g. `~/.zsh/*.zsh`) point back into it, so it must persist after the
+install finishes. A pre-existing `~/.dotfiles` is moved aside to
+`~/.dotfiles.backup_<timestamp>` before reinstalling.
+
 **Files present**
 ```bash
 ./install.sh

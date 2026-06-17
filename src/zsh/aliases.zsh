@@ -8,7 +8,7 @@ alias source_zsh="source ~/.zshrc"
 alias edit_zsh_private="open -a TextEdit ~/.zsh/private.zsh"
 
 # docker alias
-alias dc="docker-compose"
+alias dc="docker compose"
 alias dps="docker ps"
 
 # kubernetes

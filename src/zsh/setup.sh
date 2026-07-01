@@ -49,11 +49,7 @@ check_zsh_status() {
         print_info "Missing zsh files: ${missing_files[*]}"
     fi
 
-    # Check that sourcing is wired into the shell startup files
-    if ! grep -qF "$ZSHENV_MARKER" "$HOME/.zshenv" 2>/dev/null; then
-        print_info "~/.zshenv is not wired to source exports.zsh"
-        needs_update=true
-    fi
+    # Check that sourcing is wired into the shell startup file
     if ! grep -qF "$ZSHRC_MARKER" "$HOME/.zshrc" 2>/dev/null; then
         print_info "~/.zshrc is not wired to source interactive config"
         needs_update=true
@@ -168,8 +164,7 @@ EOF
     fi
 }
 
-# Markers used to detect/insert our managed source blocks idempotently.
-ZSHENV_MARKER="# >>> dotfiles (env) >>>"
+# Marker used to detect/insert our managed source block idempotently.
 ZSHRC_MARKER="# >>> dotfiles (interactive) >>>"
 
 # Append a managed block to a file only if its marker is not already present.
@@ -190,27 +185,23 @@ ensure_block() {
 }
 
 wire_zsh_sourcing() {
-    print_info "Wiring zsh sourcing into ~/.zshenv and ~/.zshrc..."
+    print_info "Wiring zsh sourcing into ~/.zshrc..."
 
-    # Environment: loaded for ALL shells (interactive, scripts, cron, ssh cmd).
-    local zshenv_block="$ZSHENV_MARKER
-# Environment variables — loaded for all shells.
-[ -f \"\$HOME/.zsh/exports.zsh\" ] && source \"\$HOME/.zsh/exports.zsh\"
-# <<< dotfiles (env) <<<"
-
-    # Interactive: appended to END of .zshrc so it runs AFTER oh-my-zsh
+    # Appended to END of .zshrc so it runs AFTER oh-my-zsh
     # (prompt.zsh depends on \$PROMPT set by oh-my-zsh).
     # Listed explicitly (one line per file) so any can be commented out easily.
+    # Everything sources from .zshrc only — nothing goes through .zshenv or
+    # .zprofile, so none of this is available to non-interactive shells
+    # (cron, scripts, ssh host cmd).
     local zshrc_block="$ZSHRC_MARKER
 # Interactive config — loaded after oh-my-zsh.
-# (exports.zsh is sourced from ~/.zshenv so env vars load for all shells.)
+[ -f \"\$HOME/.zsh/exports.zsh\" ]   && source \"\$HOME/.zsh/exports.zsh\"
 [ -f \"\$HOME/.zsh/aliases.zsh\" ]   && source \"\$HOME/.zsh/aliases.zsh\"
 [ -f \"\$HOME/.zsh/functions.zsh\" ] && source \"\$HOME/.zsh/functions.zsh\"
 [ -f \"\$HOME/.zsh/prompt.zsh\" ]    && source \"\$HOME/.zsh/prompt.zsh\"
 [ -f \"\$HOME/.zsh/private.zsh\" ]   && source \"\$HOME/.zsh/private.zsh\"
 # <<< dotfiles (interactive) <<<"
 
-    ensure_block "$HOME/.zshenv" "$ZSHENV_MARKER" "$zshenv_block"
     ensure_block "$HOME/.zshrc" "$ZSHRC_MARKER" "$zshrc_block"
 }
 

@@ -190,9 +190,6 @@ wire_zsh_sourcing() {
     # Appended to END of .zshrc so it runs AFTER oh-my-zsh
     # (prompt.zsh depends on \$PROMPT set by oh-my-zsh).
     # Listed explicitly (one line per file) so any can be commented out easily.
-    # Everything sources from .zshrc only — nothing goes through .zshenv or
-    # .zprofile, so none of this is available to non-interactive shells
-    # (cron, scripts, ssh host cmd).
     local zshrc_block="$ZSHRC_MARKER
 # Interactive config — loaded after oh-my-zsh.
 [ -f \"\$HOME/.zsh/exports.zsh\" ]   && source \"\$HOME/.zsh/exports.zsh\"

@@ -24,6 +24,11 @@ check_status() {
         return 1
     fi
 
+    if [[ ! -f "$SCRIPT_DIR/agents/setup.sh" ]]; then
+        print_error "AI agent setup script not found at $SCRIPT_DIR/agents/setup.sh"
+        return 1
+    fi
+
     if [[ ! -f "$SCRIPT_DIR/macos/setup.sh" ]]; then
         print_error "macOS setup script not found at $SCRIPT_DIR/macos/setup.sh"
         return 1
@@ -33,6 +38,13 @@ check_status() {
         print_info "Zsh configuration is up to date"
     else
         print_info "Zsh configuration updates needed"
+        needs_update=true
+    fi
+
+    if "$SCRIPT_DIR/agents/setup.sh" --check-only 2>/dev/null; then
+        print_info "AI agent configuration is up to date"
+    else
+        print_info "AI agent configuration updates needed"
         needs_update=true
     fi
 
@@ -47,7 +59,7 @@ check_status() {
         print_info "Updates needed - proceeding with installation/update"
         return 1
     else
-        print_success "Zsh configuration and macOS preferences are properly configured and up to date!"
+        print_success "Zsh, AI agent, and macOS configurations are properly configured and up to date!"
         print_info "No installation needed - everything is already set up correctly."
         return 0
     fi
@@ -88,6 +100,25 @@ execute_setup() {
         exit 1
     fi
 
+    if [[ -f "$SCRIPT_DIR/agents/setup.sh" ]]; then
+        print_section "AI Agent Configuration Setup"
+        print_info "This will install shared agent instructions and configure Claude Code's command environment."
+        print_info ""
+        "$SCRIPT_DIR/agents/setup.sh" --check-only 2>/dev/null || true
+
+        print_info ""
+        if ask_for_confirmation "Would you like to set up/update AI agent configuration?" "y"; then
+            if ! run_script_safely "$SCRIPT_DIR/agents/setup.sh"; then
+                print_warning "AI agent configuration setup failed, continuing with other sections..."
+            fi
+        else
+            print_info "Skipping AI agent configuration setup"
+        fi
+    else
+        print_error "AI agent setup script not found"
+        exit 1
+    fi
+
     if [[ -f "$SCRIPT_DIR/macos/setup.sh" ]]; then
         print_section "macOS System Preferences Setup"
         print_info "This will configure various macOS system preferences including keyboard, trackpad, UI settings, and developer tools."
@@ -123,10 +154,11 @@ show_apps() {
 main() {
     print_info "Starting dotfiles setup..."
     print_section "Dotfiles Setup Overview"
-    print_info "This setup covers three areas:"
+    print_info "This setup covers four areas:"
     print_info "1. Zsh Configuration - Shell aliases, functions, and prompt"
-    print_info "2. macOS Preferences - System settings, keyboard, trackpad, UI"
-    print_info "3. Applications - A list of apps you may want to install"
+    print_info "2. AI Agent Configuration - Shared instructions and Claude command environment"
+    print_info "3. macOS Preferences - System settings, keyboard, trackpad, UI"
+    print_info "4. Applications - A list of apps you may want to install"
     print_info ""
     print_info "You will be prompted for each major step. You can choose to complete or skip each section."
 
@@ -135,7 +167,7 @@ main() {
     check_os
 
     if check_status; then
-        print_info "Zsh and macOS already configured - no changes needed."
+        print_info "Zsh, AI agents, and macOS already configured - no changes needed."
     else
         execute_setup
     fi
@@ -149,6 +181,7 @@ main() {
     print_info ""
     print_info "Next steps:"
     print_info "- Restart your terminal to see zsh changes"
+    print_info "- Restart Claude Code to load agent environment changes"
     print_info "- Check System Preferences for macOS changes"
 }
 

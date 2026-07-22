@@ -37,6 +37,7 @@ install finishes. A pre-existing `~/.dotfiles` is moved aside to
 
 After installation, you may need to:
 - Restart your terminal for zsh configuration changes
+- Restart Claude Code for agent environment changes
 - Restart Finder for file system preference changes
 - Restart SystemUIServer for UI preference changes
 - Add Homebrew to your shell profile if not already present
@@ -47,6 +48,7 @@ After installation, you may need to:
 
 #### **Core System**
 - **Zsh Configuration**: Custom shell setup with aliases, functions, and prompt
+- **AI Agent Configuration**: Shared Codex/Claude instructions and Claude Code shell environment
 - **macOS Optimization**: Comprehensive system preferences and configurations
 - **Safe Installation**: Automatic backup system with timestamped directories
 - **Easy Updates**: Simple update process for seamless maintenance

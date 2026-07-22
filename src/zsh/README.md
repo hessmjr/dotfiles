@@ -38,25 +38,24 @@ These files are installed automatically when you run the setup script. It:
 
 ### Where each file is sourced
 
-All files load from **`~/.zshrc`** only — nothing is split across `.zshenv`
-or `.zprofile`:
+All files load interactively from **`~/.zshrc`**. Command-useful files also
+load from `~/.agents/env.zsh` for configured AI agents. Nothing is loaded from
+`.zshenv` or `.zprofile`:
 
 | File | Sourced from | Why |
 |------|--------------|-----|
-| `exports.zsh` | `~/.zshrc` | Environment vars + `PATH` + asdf. |
-| `aliases.zsh` | `~/.zshrc` | Interactive-only convenience. |
-| `functions.zsh` | `~/.zshrc` | Interactive-only convenience. |
+| `exports.zsh` | `~/.zshrc`, `~/.agents/env.zsh` | Environment vars + `PATH` + asdf. |
+| `aliases.zsh` | `~/.zshrc`, `~/.agents/env.zsh` | Command aliases. |
+| `functions.zsh` | `~/.zshrc`, `~/.agents/env.zsh` | Reusable shell functions. |
 | `prompt.zsh` | `~/.zshrc` | Needs `$PROMPT` from Oh My Zsh, so it must load **after** Oh My Zsh. |
-| `private.zsh` | `~/.zshrc` | Secrets/aliases for interactive use. |
+| `private.zsh` | `~/.zshrc`, `~/.agents/env.zsh` | Private environment and commands. |
 
 The block is appended to the **end** of `~/.zshrc` so it runs after
 `source $ZSH/oh-my-zsh.sh`. It's idempotent — re-running setup detects
 the marker (`# >>> dotfiles (interactive) >>>`) and won't add duplicates.
 
-> **Note:** Because everything loads from `.zshrc`, none of it is available to
-> non-interactive shells — cron jobs, scripts, `ssh host cmd`. If you need
-> `PATH`/asdf in those contexts, source `~/.zsh/exports.zsh` directly from
-> that context.
+> **Note:** Cron jobs, scripts, and `ssh host cmd` remain unaffected. If those
+> contexts need `PATH`/asdf, source `~/.zsh/exports.zsh` directly.
 
 ## Usage
 
@@ -76,7 +75,7 @@ After manual setup, you can:
 ## Troubleshooting
 
 - **Files not loading?** Confirm the managed block exists — `grep dotfiles ~/.zshrc` — and re-run setup if missing
-- **Env vars missing in scripts/cron?** Expected — everything loads from `~/.zshrc`, which only runs for interactive shells. Source `~/.zsh/exports.zsh` explicitly if a script needs it.
+- **Env vars missing in scripts/cron?** Expected — source `~/.zsh/exports.zsh` explicitly if a script needs it. AI agent shells are configured separately by `src/agents/setup.sh`.
 - **Oh My Zsh conflicts?** The `.zshrc` block is appended after `source $ZSH/oh-my-zsh.sh`; don't move it above that line
 - **Permission issues?** Verify the symbolic links are created correctly in the `~/.zsh/` directory
 - **Prompt not working?** Make sure Oh My Zsh is installed and the theme is set in `prompt.zsh`

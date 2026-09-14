@@ -8,10 +8,20 @@ source "$SCRIPT_DIR/utils.sh"
 AGENTS_SOURCE_DIR="$SCRIPT_DIR/agents"
 AGENTS_TARGET_DIR="$HOME/.agents"
 AGENTS_INSTRUCTIONS_TEMPLATE="$AGENTS_SOURCE_DIR/instructions.example.md"
+AGENTS_SKILLS_SOURCE="$AGENTS_SOURCE_DIR/skills"
+AGENTS_SKILLS_DIR="$AGENTS_TARGET_DIR/skills"
 CLAUDE_SETTINGS="$HOME/.claude/settings.json"
 CLAUDE_ENV_PATH="$AGENTS_TARGET_DIR/env.zsh"
 
+# Tool directories that become symlinks to the shared skills directory.
+SKILL_LINK_TARGETS=(
+    "$HOME/.claude/skills|claude-skills"
+    "$HOME/.codex/skills|codex-skills"
+    "$HOME/.cursor/skills|cursor-skills"
+)
+
 backup_dir=""
+migrate_skills_opt_in=false
 
 ensure_backup_dir() {
     if [[ -z "$backup_dir" ]]; then
@@ -76,6 +86,99 @@ ensure_local_instructions() {
     print_success "Created machine-local $target from the example"
 }
 
+# Tracked skills are linked in. Everything else there is machine-local.
+link_repo_skills() {
+    local entry name
+
+    for entry in "$AGENTS_SKILLS_SOURCE"/*; do
+        [[ -e "$entry" ]] || continue
+        name="$(basename "$entry")"
+        ensure_link "$entry" "$AGENTS_SKILLS_DIR/$name" "skills-$name"
+    done
+}
+
+ensure_skills_dir() {
+    mkdir -p "$AGENTS_SKILLS_DIR"
+    link_repo_skills
+}
+
+# Skills that would move out of a tool directory. The glob skips hidden
+# entries, so tool-owned content like Codex's .system/ stays put.
+list_movable_skills() {
+    local source_dir="$1"
+    local entry
+
+    if [[ ! -d "$source_dir" ]] || [[ -L "$source_dir" ]]; then
+        return 0
+    fi
+
+    for entry in "$source_dir"/*; do
+        [[ -e "$entry" ]] || continue
+        basename "$entry"
+    done
+}
+
+# Moving skills is opt-in. Nothing to move means no prompt.
+confirm_skills_migration() {
+    local target="$1"
+    local skills name
+
+    skills="$(list_movable_skills "$target")"
+    if [[ -z "$skills" ]]; then
+        return 0
+    fi
+
+    print_warning "$target already contains skills:"
+    while IFS= read -r name; do
+        print_info "  - $name"
+    done <<< "$skills"
+    print_info "Moving them into $AGENTS_SKILLS_DIR shares them with every linked tool."
+    print_info "Declining leaves $target untouched."
+
+    if [[ "$migrate_skills_opt_in" == true ]]; then
+        print_info "Moving them because --migrate-skills was given"
+        return 0
+    fi
+
+    ask_for_confirmation "Move these skills and link $target?" "n"
+}
+
+migrate_skills() {
+    local source_dir="$1"
+    local name target
+
+    while IFS= read -r name; do
+        [[ -n "$name" ]] || continue
+        target="$AGENTS_SKILLS_DIR/$name"
+
+        if [[ -e "$target" ]]; then
+            print_info "$name already exists in $AGENTS_SKILLS_DIR; keeping it"
+            continue
+        fi
+
+        cp -R "$source_dir/$name" "$target"
+        print_success "Migrated $name into $AGENTS_SKILLS_DIR"
+    done <<< "$(list_movable_skills "$source_dir")"
+}
+
+setup_skills() {
+    ensure_skills_dir
+
+    local entry target backup_name
+    for entry in "${SKILL_LINK_TARGETS[@]}"; do
+        target="${entry%%|*}"
+        backup_name="${entry#*|}"
+
+        if ! confirm_skills_migration "$target"; then
+            print_info "Skipping $target"
+            continue
+        fi
+
+        migrate_skills "$target"
+        ensure_link "$AGENTS_SKILLS_DIR" "$target" "$backup_name"
+    done
+}
+
 claude_env_value() {
     if [[ -f "$CLAUDE_SETTINGS" ]]; then
         /usr/bin/plutil -extract env.CLAUDE_ENV_FILE raw "$CLAUDE_SETTINGS" 2>/dev/null || true
@@ -91,7 +194,17 @@ check_agents_status() {
         "$AGENTS_TARGET_DIR/instructions.md|$HOME/.claude/CLAUDE.md"
     )
 
-    local entry source target
+    local entry source target name
+    for entry in "$AGENTS_SKILLS_SOURCE"/*; do
+        [[ -e "$entry" ]] || continue
+        name="$(basename "$entry")"
+        links+=("$entry|$AGENTS_SKILLS_DIR/$name")
+    done
+
+    for entry in "${SKILL_LINK_TARGETS[@]}"; do
+        links+=("$AGENTS_SKILLS_DIR|${entry%%|*}")
+    done
+
     for entry in "${links[@]}"; do
         source="${entry%%|*}"
         target="${entry#*|}"
@@ -130,18 +243,29 @@ configure_claude_env() {
 
     mkdir -p "$(dirname "$CLAUDE_SETTINGS")"
 
+    local settings_json=""
     if [[ -f "$CLAUDE_SETTINGS" ]]; then
-        # macOS plutil can edit JSON but its lint mode only accepts plist
-        # formats on some releases. A no-output JSON conversion validates both.
-        if ! /usr/bin/plutil -convert json -o /dev/null "$CLAUDE_SETTINGS" >/dev/null 2>&1; then
+        # plutil -lint rejects JSON on some releases. Converting validates it
+        # and gives back the normalized contents.
+        if ! settings_json="$(/usr/bin/plutil -convert json -o - "$CLAUDE_SETTINGS" 2>/dev/null)"; then
             print_error "Claude settings are not valid JSON: $CLAUDE_SETTINGS"
             return 1
         fi
+
+        if [[ "$settings_json" != "{"* ]]; then
+            print_error "Claude settings are not a JSON object: $CLAUDE_SETTINGS"
+            return 1
+        fi
+
         ensure_backup_dir
         cp -p "$CLAUDE_SETTINGS" "$backup_dir/claude-settings.json"
         print_warning "Backed up $CLAUDE_SETTINGS"
-    else
-        printf '{}\n' > "$CLAUDE_SETTINGS"
+    fi
+
+    # plutil cannot rewrite a file that is an empty dictionary: it detects no
+    # format and fails. Nothing to keep in one, so write the env dict directly.
+    if [[ ! -f "$CLAUDE_SETTINGS" ]] || [[ "$settings_json" == "{}" ]]; then
+        printf '{"env":{}}\n' > "$CLAUDE_SETTINGS"
     fi
 
     local env_type
@@ -167,18 +291,24 @@ setup_agents() {
     ensure_local_instructions
     ensure_link "$AGENTS_TARGET_DIR/instructions.md" "$HOME/.codex/AGENTS.md" "codex-AGENTS.md"
     ensure_link "$AGENTS_TARGET_DIR/instructions.md" "$HOME/.claude/CLAUDE.md" "claude-CLAUDE.md"
+    setup_skills
     configure_claude_env
 }
 
 main() {
     local check_only=false
 
-    if [[ "${1:-}" == "--check-only" ]]; then
-        check_only=true
-    elif [[ $# -gt 0 ]]; then
-        print_error "Usage: $0 [--check-only]"
-        exit 1
-    fi
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --check-only) check_only=true ;;
+            --migrate-skills) migrate_skills_opt_in=true ;;
+            *)
+                print_error "Usage: $0 [--check-only] [--migrate-skills]"
+                exit 1
+                ;;
+        esac
+        shift
+    done
 
     print_info "Checking AI agent configuration..."
     if check_agents_status; then

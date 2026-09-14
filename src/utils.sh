@@ -71,8 +71,14 @@ ask_for_confirmation() {
             echo -n "$prompt" > /dev/tty
             read -r response < /dev/tty
             case "$response" in
-                [Yy]|"") return 0 ;;  # Yes or empty (default)
-                [Nn]) return 1 ;;     # No
+                [Yy]) return 0 ;;
+                [Nn]) return 1 ;;
+                "")   # Empty answer takes the default
+                    if [[ "$default" == "y" ]]; then
+                        return 0
+                    fi
+                    return 1
+                    ;;
                 *) print_warning "Please answer 'y' or 'n'" ;;
             esac
         done
@@ -81,8 +87,14 @@ ask_for_confirmation() {
         while true; do
             read -p "$prompt" -r response
             case "$response" in
-                [Yy]|"") return 0 ;;  # Yes or empty (default)
-                [Nn]) return 1 ;;     # No
+                [Yy]) return 0 ;;
+                [Nn]) return 1 ;;
+                "")   # Empty answer takes the default
+                    if [[ "$default" == "y" ]]; then
+                        return 0
+                    fi
+                    return 1
+                    ;;
                 *) print_warning "Please answer 'y' or 'n'" ;;
             esac
         done

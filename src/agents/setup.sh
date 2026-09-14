@@ -21,6 +21,7 @@ SKILL_LINK_TARGETS=(
 )
 
 backup_dir=""
+migrate_skills_opt_in=false
 
 ensure_backup_dir() {
     if [[ -z "$backup_dir" ]]; then
@@ -85,10 +86,22 @@ ensure_local_instructions() {
     print_success "Created machine-local $target from the example"
 }
 
+# Link everything the repository tracks under skills/ into the shared
+# directory, so a committed skill follows the dotfiles onto every machine.
+# Anything else in the shared directory is machine-local and left alone.
+link_repo_skills() {
+    local entry name
+
+    for entry in "$AGENTS_SKILLS_SOURCE"/*; do
+        [[ -e "$entry" ]] || continue
+        name="$(basename "$entry")"
+        ensure_link "$entry" "$AGENTS_SKILLS_DIR/$name" "skills-$name"
+    done
+}
+
 ensure_skills_dir() {
     mkdir -p "$AGENTS_SKILLS_DIR"
-    ensure_link "$AGENTS_SKILLS_SOURCE/README.md" "$AGENTS_SKILLS_DIR/README.md" \
-        "skills-README.md"
+    link_repo_skills
 }
 
 # Name the skills that would move out of a tool directory. The unquoted glob
@@ -125,6 +138,11 @@ confirm_skills_migration() {
     done <<< "$skills"
     print_info "Moving them into $AGENTS_SKILLS_DIR shares them with every linked tool."
     print_info "Declining leaves $target untouched."
+
+    if [[ "$migrate_skills_opt_in" == true ]]; then
+        print_info "Moving them because --migrate-skills was given"
+        return 0
+    fi
 
     ask_for_confirmation "Move these skills and link $target?" "n"
 }
@@ -178,10 +196,15 @@ check_agents_status() {
         "$AGENTS_SOURCE_DIR/env.zsh|$AGENTS_TARGET_DIR/env.zsh"
         "$AGENTS_TARGET_DIR/instructions.md|$HOME/.codex/AGENTS.md"
         "$AGENTS_TARGET_DIR/instructions.md|$HOME/.claude/CLAUDE.md"
-        "$AGENTS_SKILLS_SOURCE/README.md|$AGENTS_SKILLS_DIR/README.md"
     )
 
-    local entry source target
+    local entry source target name
+    for entry in "$AGENTS_SKILLS_SOURCE"/*; do
+        [[ -e "$entry" ]] || continue
+        name="$(basename "$entry")"
+        links+=("$entry|$AGENTS_SKILLS_DIR/$name")
+    done
+
     for entry in "${SKILL_LINK_TARGETS[@]}"; do
         links+=("$AGENTS_SKILLS_DIR|${entry%%|*}")
     done
@@ -282,12 +305,17 @@ setup_agents() {
 main() {
     local check_only=false
 
-    if [[ "${1:-}" == "--check-only" ]]; then
-        check_only=true
-    elif [[ $# -gt 0 ]]; then
-        print_error "Usage: $0 [--check-only]"
-        exit 1
-    fi
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --check-only) check_only=true ;;
+            --migrate-skills) migrate_skills_opt_in=true ;;
+            *)
+                print_error "Usage: $0 [--check-only] [--migrate-skills]"
+                exit 1
+                ;;
+        esac
+        shift
+    done
 
     print_info "Checking AI agent configuration..."
     if check_agents_status; then

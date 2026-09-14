@@ -8,10 +8,17 @@ reads it through a symlink, so a skill written once is available everywhere.
 
 ```
 ~/.agents/skills/
-├── README.md          → symlink to this file
-└── <skill-name>/
-    └── SKILL.md       machine-local skill
+├── README.md          → symlink into the repository
+├── hess-do-better/    → symlink into the repository
+└── <skill-name>/      machine-local skill, not tracked
+    └── SKILL.md
 ```
+
+A skill tracked in this repository is symlinked into the shared directory, the
+same way `env.zsh` is, so committing one carries it to every machine. A skill
+created directly in `~/.agents/skills` is a plain directory and stays on the
+machine that made it. Promote a local skill by moving it into
+`src/agents/skills/` and committing; setup replaces the copy with a symlink.
 
 Each skill is a directory containing a `SKILL.md` with YAML frontmatter:
 
@@ -42,10 +49,6 @@ Claude Desktop is not linked. It syncs skills from your Claude account into
 than by dotfiles, so a skill needed there has to be added through the account.
 
 ## Machine-local skills
-
-The repository tracks only this README. Skills themselves are machine-local
-and are never overwritten by setup, matching how `~/.agents/instructions.md`
-works.
 
 Setup never moves existing skills on its own. A tool directory that is missing
 or empty is linked straight away; one that already holds skills is listed and

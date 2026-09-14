@@ -38,12 +38,14 @@ their global instruction entry points to the local file.
 
 Agent Skills live in `~/.agents/skills`, and each tool's skills directory is a
 symlink to it, so one skill is picked up by Claude Code, Codex, and Cursor
-alike. Only `skills/README.md` is tracked; the skills themselves are
-machine-local, like `instructions.md`.
+alike. Skills tracked under `src/agents/skills/` are symlinked in, so committing one
+carries it to every machine; skills created directly in `~/.agents/skills`
+stay local to that machine.
 
 Moving existing skills is opt-in. A tool directory that is missing or empty is
 linked without asking, but one that already holds skills is listed and
-confirmed first, and declining leaves that directory untouched.
+confirmed first, and declining leaves that directory untouched. Pass
+`--migrate-skills` to answer yes without prompting.
 
 Directories that a tool manages itself are left alone: Codex keeps built-ins in
 `.system/` and Cursor keeps its own in `~/.cursor/skills-cursor/`. Claude

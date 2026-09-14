@@ -1,56 +1,35 @@
 # Agent Skills
 
-Shared [Agent Skills](https://code.claude.com/docs/en/skills) for local AI
-coding agents. `~/.agents/skills` is the single source of truth; every tool
-reads it through a symlink, so a skill written once is available everywhere.
-
-## Layout
-
-```
-~/.agents/skills/
-├── README.md          → symlink into the repository
-├── hess-do-better/    → symlink into the repository
-└── <skill-name>/      machine-local skill, not tracked
-    └── SKILL.md
-```
-
-A skill tracked in this repository is symlinked into the shared directory, the
-same way `env.zsh` is, so committing one carries it to every machine. A skill
-created directly in `~/.agents/skills` is a plain directory and stays on the
-machine that made it. Promote a local skill by moving it into
-`src/agents/skills/` and committing; setup replaces the copy with a symlink.
-
-Each skill is a directory containing a `SKILL.md` with YAML frontmatter:
-
-```markdown
----
-name: my-skill
-description: One line telling the agent when to use this skill.
----
-
-Instructions for the agent.
-```
-
-The `description` is what the agent matches against, so describe the trigger,
-not just the behavior.
-
-## Linked tools
+Skills live in `~/.agents/skills`. Each tool reads it through a symlink, so a
+skill is written once.
 
 - `~/.claude/skills` → Claude Code
 - `~/.codex/skills` → Codex
 - `~/.cursor/skills` → Cursor
 
-Tool-managed skill directories are left alone: Codex writes its own built-ins
-to `.system/` and Cursor keeps its own in `~/.cursor/skills-cursor/`. Neither
-is tracked here.
+A skill is a directory with a `SKILL.md`:
 
-Claude Desktop is not linked. It syncs skills from your Claude account into
-`~/Library/Application Support/Claude/`, which is managed by the app rather
-than by dotfiles, so a skill needed there has to be added through the account.
+```markdown
+---
+name: my-skill
+description: When to use this skill.
+---
 
-## Machine-local skills
+Instructions for the agent.
+```
 
-Setup never moves existing skills on its own. A tool directory that is missing
-or empty is linked straight away; one that already holds skills is listed and
-confirmed first, and declining leaves it untouched. Hidden entries such as
-Codex's `.system/` are never moved.
+## Tracked vs local
+
+Skills in `src/agents/skills/` are symlinked in and follow the dotfiles to
+every machine. Skills made directly in `~/.agents/skills` stay on that
+machine. To share a local one, move it into `src/agents/skills/` and commit.
+
+## Setup
+
+Setup never moves existing skills on its own. An empty tool directory is
+linked right away; one with skills is listed and confirmed first. Pass
+`--migrate-skills` to skip the prompt.
+
+Tool-owned skills are left alone: Codex's `.system/` and
+`~/.cursor/skills-cursor/`. Claude Desktop is not linked; it syncs skills from
+your account.

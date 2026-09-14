@@ -13,7 +13,7 @@ AGENTS_SKILLS_DIR="$AGENTS_TARGET_DIR/skills"
 CLAUDE_SETTINGS="$HOME/.claude/settings.json"
 CLAUDE_ENV_PATH="$AGENTS_TARGET_DIR/env.zsh"
 
-# Tool skill directories that become symlinks to the shared skills directory.
+# Tool directories that become symlinks to the shared skills directory.
 SKILL_LINK_TARGETS=(
     "$HOME/.claude/skills|claude-skills"
     "$HOME/.codex/skills|codex-skills"
@@ -86,9 +86,7 @@ ensure_local_instructions() {
     print_success "Created machine-local $target from the example"
 }
 
-# Link everything the repository tracks under skills/ into the shared
-# directory, so a committed skill follows the dotfiles onto every machine.
-# Anything else in the shared directory is machine-local and left alone.
+# Tracked skills are linked in. Everything else there is machine-local.
 link_repo_skills() {
     local entry name
 
@@ -104,9 +102,8 @@ ensure_skills_dir() {
     link_repo_skills
 }
 
-# Name the skills that would move out of a tool directory. The unquoted glob
-# skips hidden entries, so tool-managed content such as Codex's .system/ is
-# never moved and stays with the tool that maintains it.
+# Skills that would move out of a tool directory. The glob skips hidden
+# entries, so tool-owned content like Codex's .system/ stays put.
 list_movable_skills() {
     local source_dir="$1"
     local entry
@@ -121,8 +118,7 @@ list_movable_skills() {
     done
 }
 
-# Moving existing skills is always opt-in. A directory with nothing to move is
-# linked without asking; one that holds skills is only touched on a yes.
+# Moving skills is opt-in. Nothing to move means no prompt.
 confirm_skills_migration() {
     local target="$1"
     local skills name
@@ -249,9 +245,8 @@ configure_claude_env() {
 
     local settings_json=""
     if [[ -f "$CLAUDE_SETTINGS" ]]; then
-        # macOS plutil can edit JSON but its lint mode only accepts plist
-        # formats on some releases. A JSON conversion validates both and hands
-        # back the normalized contents.
+        # plutil -lint rejects JSON on some releases. Converting validates it
+        # and gives back the normalized contents.
         if ! settings_json="$(/usr/bin/plutil -convert json -o - "$CLAUDE_SETTINGS" 2>/dev/null)"; then
             print_error "Claude settings are not valid JSON: $CLAUDE_SETTINGS"
             return 1
@@ -267,10 +262,8 @@ configure_claude_env() {
         print_warning "Backed up $CLAUDE_SETTINGS"
     fi
 
-    # plutil refuses to rewrite a file whose top level is an empty dictionary:
-    # it detects no format and falls back to OpenStep, which it cannot write.
-    # Such a file holds no settings worth keeping, so seed the env dictionary
-    # directly and let the normal key path handling take over from there.
+    # plutil cannot rewrite a file that is an empty dictionary: it detects no
+    # format and fails. Nothing to keep in one, so write the env dict directly.
     if [[ ! -f "$CLAUDE_SETTINGS" ]] || [[ "$settings_json" == "{}" ]]; then
         printf '{"env":{}}\n' > "$CLAUDE_SETTINGS"
     fi

@@ -73,7 +73,7 @@ ask_for_confirmation() {
             case "$response" in
                 [Yy]) return 0 ;;
                 [Nn]) return 1 ;;
-                "")   # Empty answer takes the default
+                "")   # Take the default
                     if [[ "$default" == "y" ]]; then
                         return 0
                     fi
@@ -89,7 +89,7 @@ ask_for_confirmation() {
             case "$response" in
                 [Yy]) return 0 ;;
                 [Nn]) return 1 ;;
-                "")   # Empty answer takes the default
+                "")   # Take the default
                     if [[ "$default" == "y" ]]; then
                         return 0
                     fi

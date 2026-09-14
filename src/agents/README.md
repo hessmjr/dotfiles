@@ -9,6 +9,8 @@ environment for local AI coding agents.
 - `~/.agents/env.zsh` → shell configuration used by Claude Code commands
 - `~/.codex/AGENTS.md` → shared instructions
 - `~/.claude/CLAUDE.md` → shared instructions
+- `~/.agents/skills/` → shared agent skills
+- `~/.claude/skills`, `~/.codex/skills`, `~/.cursor/skills` → shared skills
 
 The setup also adds this value to `~/.claude/settings.json` while preserving
 all other Claude settings:
@@ -31,6 +33,22 @@ The repository tracks only `instructions.example.md`. On first setup it is
 copied to `~/.agents/instructions.md`; subsequent runs never overwrite that
 local file. Customize it independently on each computer. Codex and Claude link
 their global instruction entry points to the local file.
+
+## Shared skills
+
+Agent Skills live in `~/.agents/skills`, and each tool's skills directory is a
+symlink to it, so one skill is picked up by Claude Code, Codex, and Cursor
+alike. Only `skills/README.md` is tracked; the skills themselves are
+machine-local, like `instructions.md`.
+
+Moving existing skills is opt-in. A tool directory that is missing or empty is
+linked without asking, but one that already holds skills is listed and
+confirmed first, and declining leaves that directory untouched.
+
+Directories that a tool manages itself are left alone: Codex keeps built-ins in
+`.system/` and Cursor keeps its own in `~/.cursor/skills-cursor/`. Claude
+Desktop is not linked, because it syncs skills from your Claude account instead
+of reading `~/.claude/skills`.
 
 ## Agent shell environment
 

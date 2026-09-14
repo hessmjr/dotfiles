@@ -8,8 +8,17 @@ source "$SCRIPT_DIR/utils.sh"
 AGENTS_SOURCE_DIR="$SCRIPT_DIR/agents"
 AGENTS_TARGET_DIR="$HOME/.agents"
 AGENTS_INSTRUCTIONS_TEMPLATE="$AGENTS_SOURCE_DIR/instructions.example.md"
+AGENTS_SKILLS_SOURCE="$AGENTS_SOURCE_DIR/skills"
+AGENTS_SKILLS_DIR="$AGENTS_TARGET_DIR/skills"
 CLAUDE_SETTINGS="$HOME/.claude/settings.json"
 CLAUDE_ENV_PATH="$AGENTS_TARGET_DIR/env.zsh"
+
+# Tool skill directories that become symlinks to the shared skills directory.
+SKILL_LINK_TARGETS=(
+    "$HOME/.claude/skills|claude-skills"
+    "$HOME/.codex/skills|codex-skills"
+    "$HOME/.cursor/skills|cursor-skills"
+)
 
 backup_dir=""
 
@@ -76,6 +85,86 @@ ensure_local_instructions() {
     print_success "Created machine-local $target from the example"
 }
 
+ensure_skills_dir() {
+    mkdir -p "$AGENTS_SKILLS_DIR"
+    ensure_link "$AGENTS_SKILLS_SOURCE/README.md" "$AGENTS_SKILLS_DIR/README.md" \
+        "skills-README.md"
+}
+
+# Name the skills that would move out of a tool directory. The unquoted glob
+# skips hidden entries, so tool-managed content such as Codex's .system/ is
+# never moved and stays with the tool that maintains it.
+list_movable_skills() {
+    local source_dir="$1"
+    local entry
+
+    if [[ ! -d "$source_dir" ]] || [[ -L "$source_dir" ]]; then
+        return 0
+    fi
+
+    for entry in "$source_dir"/*; do
+        [[ -e "$entry" ]] || continue
+        basename "$entry"
+    done
+}
+
+# Moving existing skills is always opt-in. A directory with nothing to move is
+# linked without asking; one that holds skills is only touched on a yes.
+confirm_skills_migration() {
+    local target="$1"
+    local skills name
+
+    skills="$(list_movable_skills "$target")"
+    if [[ -z "$skills" ]]; then
+        return 0
+    fi
+
+    print_warning "$target already contains skills:"
+    while IFS= read -r name; do
+        print_info "  - $name"
+    done <<< "$skills"
+    print_info "Moving them into $AGENTS_SKILLS_DIR shares them with every linked tool."
+    print_info "Declining leaves $target untouched."
+
+    ask_for_confirmation "Move these skills and link $target?" "n"
+}
+
+migrate_skills() {
+    local source_dir="$1"
+    local name target
+
+    while IFS= read -r name; do
+        [[ -n "$name" ]] || continue
+        target="$AGENTS_SKILLS_DIR/$name"
+
+        if [[ -e "$target" ]]; then
+            print_info "$name already exists in $AGENTS_SKILLS_DIR; keeping it"
+            continue
+        fi
+
+        cp -R "$source_dir/$name" "$target"
+        print_success "Migrated $name into $AGENTS_SKILLS_DIR"
+    done <<< "$(list_movable_skills "$source_dir")"
+}
+
+setup_skills() {
+    ensure_skills_dir
+
+    local entry target backup_name
+    for entry in "${SKILL_LINK_TARGETS[@]}"; do
+        target="${entry%%|*}"
+        backup_name="${entry#*|}"
+
+        if ! confirm_skills_migration "$target"; then
+            print_info "Skipping $target"
+            continue
+        fi
+
+        migrate_skills "$target"
+        ensure_link "$AGENTS_SKILLS_DIR" "$target" "$backup_name"
+    done
+}
+
 claude_env_value() {
     if [[ -f "$CLAUDE_SETTINGS" ]]; then
         /usr/bin/plutil -extract env.CLAUDE_ENV_FILE raw "$CLAUDE_SETTINGS" 2>/dev/null || true
@@ -89,9 +178,14 @@ check_agents_status() {
         "$AGENTS_SOURCE_DIR/env.zsh|$AGENTS_TARGET_DIR/env.zsh"
         "$AGENTS_TARGET_DIR/instructions.md|$HOME/.codex/AGENTS.md"
         "$AGENTS_TARGET_DIR/instructions.md|$HOME/.claude/CLAUDE.md"
+        "$AGENTS_SKILLS_SOURCE/README.md|$AGENTS_SKILLS_DIR/README.md"
     )
 
     local entry source target
+    for entry in "${SKILL_LINK_TARGETS[@]}"; do
+        links+=("$AGENTS_SKILLS_DIR|${entry%%|*}")
+    done
+
     for entry in "${links[@]}"; do
         source="${entry%%|*}"
         target="${entry#*|}"
@@ -181,6 +275,7 @@ setup_agents() {
     ensure_local_instructions
     ensure_link "$AGENTS_TARGET_DIR/instructions.md" "$HOME/.codex/AGENTS.md" "codex-AGENTS.md"
     ensure_link "$AGENTS_TARGET_DIR/instructions.md" "$HOME/.claude/CLAUDE.md" "claude-CLAUDE.md"
+    setup_skills
     configure_claude_env
 }
 

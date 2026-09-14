@@ -130,18 +130,32 @@ configure_claude_env() {
 
     mkdir -p "$(dirname "$CLAUDE_SETTINGS")"
 
+    local settings_json=""
     if [[ -f "$CLAUDE_SETTINGS" ]]; then
         # macOS plutil can edit JSON but its lint mode only accepts plist
-        # formats on some releases. A no-output JSON conversion validates both.
-        if ! /usr/bin/plutil -convert json -o /dev/null "$CLAUDE_SETTINGS" >/dev/null 2>&1; then
+        # formats on some releases. A JSON conversion validates both and hands
+        # back the normalized contents.
+        if ! settings_json="$(/usr/bin/plutil -convert json -o - "$CLAUDE_SETTINGS" 2>/dev/null)"; then
             print_error "Claude settings are not valid JSON: $CLAUDE_SETTINGS"
             return 1
         fi
+
+        if [[ "$settings_json" != "{"* ]]; then
+            print_error "Claude settings are not a JSON object: $CLAUDE_SETTINGS"
+            return 1
+        fi
+
         ensure_backup_dir
         cp -p "$CLAUDE_SETTINGS" "$backup_dir/claude-settings.json"
         print_warning "Backed up $CLAUDE_SETTINGS"
-    else
-        printf '{}\n' > "$CLAUDE_SETTINGS"
+    fi
+
+    # plutil refuses to rewrite a file whose top level is an empty dictionary:
+    # it detects no format and falls back to OpenStep, which it cannot write.
+    # Such a file holds no settings worth keeping, so seed the env dictionary
+    # directly and let the normal key path handling take over from there.
+    if [[ ! -f "$CLAUDE_SETTINGS" ]] || [[ "$settings_json" == "{}" ]]; then
+        printf '{"env":{}}\n' > "$CLAUDE_SETTINGS"
     fi
 
     local env_type
